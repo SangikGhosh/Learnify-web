@@ -99,7 +99,7 @@ const Footer = () => {
             </div>
 
             <div>
-              <p className="text-sm font-semibold tracking-widest text-indigo-600 uppercase">
+              <p className="text-base font-bold tracking-widest text-indigo-600 uppercase">
                 Company
               </p>
 
@@ -137,7 +137,7 @@ const Footer = () => {
             </div>
 
             <div>
-              <p className="text-sm font-semibold tracking-widest text-indigo-600 uppercase">
+              <p className="text-base font-bold tracking-widest text-indigo-600 uppercase">
                 Help
               </p>
 
@@ -185,7 +185,7 @@ const Footer = () => {
             </div>
 
             <div className="col-span-2 md:col-span-1 lg:col-span-2 lg:pl-8">
-              <p className="text-sm font-semibold tracking-widest text-indigo-600 uppercase">
+              <p className="text-base font-bold tracking-widest text-indigo-600 uppercase">
                 Need any help
               </p>
 

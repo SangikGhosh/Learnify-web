@@ -27,7 +27,7 @@ const Home: React.FC = () => {
               <div className="flex flex-col items-center mt-8 space-y-4 lg:items-start lg:mt-12">
                 <a
                   href="#"
-                  className="relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-black transition-all duration-300 bg-yellow-400 rounded-full hover:bg-yellow-500 focus:bg-yellow-500 hover:shadow-lg hover:-translate-y-1"
+                  className="relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-black transition-all duration-300 bg-yellow-400 rounded-full hover:bg-yellow-500 focus:bg-yellow-500"
                 >
                   Join for Free
                   <svg

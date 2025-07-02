@@ -169,7 +169,7 @@ const ExploreDropdown: React.FC = () => {
       <button
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
-        className="flex items-center px-4 py-2 font-medium text-black hover:text-purple-600 transition-colors duration-200 select-none"
+        className="flex items-center px-4 py-2 font-semibold text-black hover:text-blue-600 transition-colors duration-200 select-none"
       >
         Explore
         <svg 
@@ -195,7 +195,7 @@ const ExploreDropdown: React.FC = () => {
               <li
                 key={cat.name}
                 className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors duration-150 flex justify-between items-center select-none ${
-                  hoveredCategory === cat.name ? 'bg-gray-50 text-purple-600' : 'text-gray-800'
+                  hoveredCategory === cat.name ? 'bg-gray-50 text-blue-600' : 'text-gray-800'
                 }`}
                 onMouseEnter={() => setHoveredCategory(cat.name)}
               >

@@ -457,9 +457,8 @@ const Navbar: React.FC = () => {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex lg:items-center font-semibold lg:justify-center lg:space-x-10 pr-4">
             <h1 className="text-lg text-black transition-all duration-200 hover:text-opacity-80"><ExploreDropdown/></h1>
-            <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Solutions</a>
-            <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Resources</a>
-            <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Pricing</a>
+            <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Teach on LearniFy</a>
+            <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">View Cart</a>
           </div>
 
           <motion.a
@@ -520,7 +519,7 @@ const Navbar: React.FC = () => {
                   Pricing
                 </motion.a>
                 <motion.a
-                  href="#"
+                  href="/login"
                   className="block w-full px-3 py-2 mt-2 text-base font-semibold text-center text-white bg-black rounded-full hover:bg-yellow-300 hover:text-black"
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}

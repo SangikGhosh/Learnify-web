@@ -204,8 +204,7 @@ const Navbar: React.FC = () => {
 
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#FCF8F1] bg-opacity-90 shadow-sm" : "bg-[#FCF8F1] bg-opacity-30"
-        }`}
+      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#FCF8F1] bg-opacity-90 shadow-sm" : "bg-[#FCF8F1] bg-opacity-30"}`}
     >
       <div className="px-4 mx-auto sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -408,7 +407,7 @@ const Navbar: React.FC = () => {
                 <input
                   ref={inputRef}
                   type="text"
-                  className="w-full py-3 pl-10 pr-5 text-gray-900 placeholder-gray-800 bg-white border-2 border-gray-600 rounded-full focus:border-yellow-400 focus:ring-2 focus:ring-yellow-300 focus:outline-none transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="w-full py-3 pl-10 pr-5 text-gray-900 placeholder-gray-800 bg-white border border-gray-600 rounded-full focus:border-yellow-400 focus:ring-2 focus:ring-yellow-300 focus:outline-none transition-all duration-200 shadow-sm hover:shadow-md"
                   placeholder={`Search anything...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -480,8 +479,9 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex lg:items-center font-semibold lg:justify-center lg:space-x-10 pr-4">
+            <a href="/" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Home</a>
             <h1 className="text-lg text-black transition-all duration-200 hover:text-opacity-80"><ExploreDropdown /></h1>
-            <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Teach on LearniFy</a>
+            <a href="/teach-on-learnify" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Teach on LearniFy</a>
             <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">View Cart</a>
           </div>
 
@@ -558,12 +558,20 @@ const Navbar: React.FC = () => {
             >
               <div className="pt-2 pb-4 space-y-2">
                 <motion.a
-                  href="#"
+                  href="/"
                   className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}
                 >
-                  Features
+                  Home
+                </motion.a>
+                <motion.a
+                  href="/teach-on-learnify"
+                  className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
+                  onClick={() => setIsMenuOpen(false)}
+                  variants={menuItemVariants}
+                >
+                  Teach on LearniFy
                 </motion.a>
                 <motion.a
                   href="#"
@@ -571,23 +579,7 @@ const Navbar: React.FC = () => {
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}
                 >
-                  Solutions
-                </motion.a>
-                <motion.a
-                  href="#"
-                  className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
-                  onClick={() => setIsMenuOpen(false)}
-                  variants={menuItemVariants}
-                >
-                  Resources
-                </motion.a>
-                <motion.a
-                  href="#"
-                  className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
-                  onClick={() => setIsMenuOpen(false)}
-                  variants={menuItemVariants}
-                >
-                  Pricing
+                  View Cart
                 </motion.a>
                 <motion.a
                   href="/login"

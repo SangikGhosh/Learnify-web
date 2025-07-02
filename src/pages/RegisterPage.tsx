@@ -105,7 +105,7 @@ const RegisterPage: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 hover:text-black transition-all duration-50 text-sm sm:text-base md:text-lg font-medium cursor-pointer"
+                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 focus:text-black hover:text-black transition-all duration-50 text-sm sm:text-base md:text-lg font-medium cursor-pointer"
                 whileHover={{
                   backgroundColor: "#FACC15",
                   color: "#000000",

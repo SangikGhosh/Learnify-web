@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { GraduationCap, School } from "lucide-react";
 import ExploreDropdown from "./ExploreDropdown";
 
 const Navbar: React.FC = () => {
@@ -8,9 +9,11 @@ const Navbar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  
+  const [isJoinHovered, setIsJoinHovered] = useState(false);
+
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const joinButtonRef = useRef<HTMLDivElement>(null);
 
   const popularCourses = [
     "Artificial Intelligence",
@@ -21,12 +24,12 @@ const Navbar: React.FC = () => {
     "Machine Learning",
     "DevOps Practices",
   ];
-  
+
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 10;
       setIsScrolled(scrolled);
-      
+
       if (scrolled && window.innerWidth < 1024) {
         setIsSearchOpen(false);
         setIsMenuOpen(false);
@@ -36,6 +39,9 @@ const Navbar: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsSearchFocused(false);
+      }
+      if (joinButtonRef.current && !joinButtonRef.current.contains(event.target as Node)) {
+        setIsJoinHovered(false);
       }
     };
 
@@ -81,19 +87,19 @@ const Navbar: React.FC = () => {
   };
 
   const menuVariants = {
-    open: { 
+    open: {
       opacity: 1,
       height: "auto",
-      transition: { 
+      transition: {
         staggerChildren: 0.05,
         delayChildren: 0.1,
         duration: 0.2
       }
     },
-    closed: { 
+    closed: {
       opacity: 0,
       height: 0,
-      transition: { 
+      transition: {
         staggerChildren: 0.05,
         staggerDirection: -1,
         when: "afterChildren",
@@ -103,7 +109,7 @@ const Navbar: React.FC = () => {
   };
 
   const menuItemVariants = {
-    open: { 
+    open: {
       y: 0,
       opacity: 1,
       transition: {
@@ -111,7 +117,7 @@ const Navbar: React.FC = () => {
         opacity: { duration: 0.15 }
       }
     },
-    closed: { 
+    closed: {
       y: 50,
       opacity: 0,
       transition: {
@@ -122,19 +128,19 @@ const Navbar: React.FC = () => {
   };
 
   const searchVariants = {
-    open: { 
+    open: {
       opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         type: "spring" as const,
         stiffness: 300,
         damping: 20
       }
     },
-    closed: { 
+    closed: {
       opacity: 0,
       y: -20,
-      transition: { 
+      transition: {
         duration: 0.2
       }
     }
@@ -162,8 +168,8 @@ const Navbar: React.FC = () => {
 
   const suggestionItemVariants = {
     initial: { opacity: 0, y: -5 },
-    animate: { 
-      opacity: 1, 
+    animate: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.2 }
     },
@@ -177,16 +183,34 @@ const Navbar: React.FC = () => {
     }
   };
 
+  const joinDropdownVariants = {
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring" as const,
+        stiffness: 400,
+        damping: 25
+      }
+    },
+    closed: {
+      opacity: 0,
+      y: -10,
+      transition: {
+        duration: 0.15
+      }
+    }
+  };
+
   return (
-    <header 
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled ? "bg-[#FCF8F1] bg-opacity-90 shadow-sm" : "bg-[#FCF8F1] bg-opacity-30"
-      }`}
+    <header
+      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#FCF8F1] bg-opacity-90 shadow-sm" : "bg-[#FCF8F1] bg-opacity-30"
+        }`}
     >
       <div className="px-4 mx-auto sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo - Hidden when search is open on mobile */}
-          <motion.div 
+          <motion.div
             className="flex-shrink-0"
             animate={{
               opacity: isSearchOpen ? 0 : 1,
@@ -268,7 +292,7 @@ const Navbar: React.FC = () => {
           {/* Expanded Search Bar (Mobile) */}
           <AnimatePresence>
             {isSearchOpen && (
-              <motion.div 
+              <motion.div
                 className="absolute left-0 right-0 z-50 px-4 lg:hidden"
                 initial="closed"
                 animate="open"
@@ -393,8 +417,8 @@ const Navbar: React.FC = () => {
                 <motion.button
                   type="submit"
                   className="absolute inset-y-0 right-0 px-6 text-sm font-medium text-white bg-black rounded-r-full hover:bg-yellow-400 hover:text-black focus:bg-yellow-400 focus:text-black transition-all duration-200"
-                  whileHover={{ 
-                    backgroundColor: "#FACC15", 
+                  whileHover={{
+                    backgroundColor: "#FACC15",
                     color: "#000000",
                     scale: 1
                   }}
@@ -456,29 +480,76 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex lg:items-center font-semibold lg:justify-center lg:space-x-10 pr-4">
-            <h1 className="text-lg text-black transition-all duration-200 hover:text-opacity-80"><ExploreDropdown/></h1>
+            <h1 className="text-lg text-black transition-all duration-200 hover:text-opacity-80"><ExploreDropdown /></h1>
             <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Teach on LearniFy</a>
             <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">View Cart</a>
           </div>
 
-          <motion.a
-            href="/login"
-            className="hidden lg:inline-flex items-center justify-center px-5 py-2.5 text-base duration-200 hover:bg-yellow-300 hover:text-black focus:text-black focus:bg-yellow-300 font-semibold text-white bg-black rounded-full"
-            whileHover={{ 
-              backgroundColor: "#FACC15",
-              color: "#000000",
-              scale: 1.02
-            }}
-            whileTap={{ scale: 0.95 }}
+          {/* Join Now Button with Dropdown */}
+          <div
+            className="hidden lg:block relative"
+            ref={joinButtonRef}
+            onMouseEnter={() => setIsJoinHovered(true)}
+            onMouseLeave={() => setIsJoinHovered(false)}
           >
-            Join Now
-          </motion.a>
+            <motion.p
+              className="cursor-pointer inline-flex items-center justify-center px-5 py-2.5 text-base duration-200 hover:bg-yellow-300 hover:text-black focus:text-black focus:bg-yellow-300 font-semibold text-white bg-black rounded-full"
+              whileHover={{
+                backgroundColor: "#FACC15",
+                color: "#000000",
+                scale: 1.02
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Join Now
+            </motion.p>
+
+            <AnimatePresence>
+              {isJoinHovered && (
+                <motion.div
+                  className="absolute right-0 z-50 mt-2 w-64 origin-top-right"
+                  initial="closed"
+                  animate="open"
+                  exit="closed"
+                  variants={joinDropdownVariants}
+                >
+                  <div className="rounded-xl shadow-lg bg-white overflow-hidden border border-gray-200">
+                    <motion.a
+                      href="/login"
+                      className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
+                      whileHover={{ x: 4 }}
+                    >
+                      <GraduationCap className="w-5 h-5 mr-3 text-yellow-500" />
+                      <div>
+                        <p className="font-medium text-gray-900">Join as Student</p>
+                        <p className="text-sm text-gray-500">Start learning today</p>
+                      </div>
+                    </motion.a>
+
+                    <div className="border-t border-gray-200" />
+
+                    <motion.a
+                      href="/instructor-signup"
+                      className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
+                      whileHover={{ x: 4 }}
+                    >
+                      <School className="w-5 h-5 mr-3 text-yellow-500" />
+                      <div>
+                        <p className="font-medium text-gray-900">Join as Instructor</p>
+                        <p className="text-sm text-gray-500">Share your knowledge</p>
+                      </div>
+                    </motion.a>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
         <AnimatePresence>
           {isMenuOpen && (
-            <motion.div 
+            <motion.div
               className="lg:hidden"
               initial="closed"
               animate="open"
@@ -486,32 +557,32 @@ const Navbar: React.FC = () => {
               variants={menuVariants}
             >
               <div className="pt-2 pb-4 space-y-2">
-                <motion.a 
-                  href="#" 
+                <motion.a
+                  href="#"
                   className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}
                 >
                   Features
                 </motion.a>
-                <motion.a 
-                  href="#" 
+                <motion.a
+                  href="#"
                   className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}
                 >
                   Solutions
                 </motion.a>
-                <motion.a 
-                  href="#" 
+                <motion.a
+                  href="#"
                   className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}
                 >
                   Resources
                 </motion.a>
-                <motion.a 
-                  href="#" 
+                <motion.a
+                  href="#"
                   className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}
@@ -520,12 +591,27 @@ const Navbar: React.FC = () => {
                 </motion.a>
                 <motion.a
                   href="/login"
-                  className="block w-full px-3 py-2 mt-2 text-base font-semibold text-center text-white bg-black rounded-full hover:bg-yellow-300 hover:text-black"
+                  className="flex px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}
-                  whileHover={{ backgroundColor: "#FACC15", color: "#000000" }}
                 >
-                  Join Now
+                  <GraduationCap className="w-6 h-6 mt-2 mr-3 text-yellow-500" />
+                  <div>
+                    <p className="font-medium text-gray-900">Join as Student</p>
+                    <p className="text-sm text-gray-500">Start learning today</p>
+                  </div>
+                </motion.a>
+                <motion.a
+                  href="#"
+                  className="flex px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
+                  onClick={() => setIsMenuOpen(false)}
+                  variants={menuItemVariants}
+                >
+                  <School className="w-5 h-5 mr-3 mt-2 text-yellow-500" />
+                  <div>
+                    <p className="font-medium text-gray-900">Join as Instructor</p>
+                    <p className="text-sm text-gray-500">Share your knowledge</p>
+                  </div>
                 </motion.a>
               </div>
             </motion.div>

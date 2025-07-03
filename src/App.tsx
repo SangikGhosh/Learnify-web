@@ -7,6 +7,8 @@ import Footer from "./components/Footer";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import TeachOnLearnify from "./pages/TeachOnLearnify";
+import InstructorRegister from "./pages/InstructorRegister";
+import InstructorLogin from "./pages/InstructorLogin";
 
 function AppContent() {
   const location = useLocation();
@@ -18,6 +20,8 @@ function AppContent() {
     "/otp",
     "/reset-password",
     "/forgot-password",
+    "/instructor-register",
+    "/instructor-login",
   ].includes(location.pathname);
 
   useEffect(() => {
@@ -34,6 +38,8 @@ function AppContent() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={ <RegisterPage /> }/>
         <Route path="/teach-on-learnify" element={ <TeachOnLearnify /> } />
+        <Route path="/instructor-register" element={ <InstructorRegister /> } />
+        <Route path="/instructor-login" element={<InstructorLogin />} />
       </Routes>
       {!hideLayout && <Footer />}
     </>

@@ -177,7 +177,7 @@ const HomePage: React.FC = () => {
                 <div className="flex flex-col items-center mt-8 space-y-4 lg:items-start lg:mt-12">
                   <a
                     href="/register"
-                    className="relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-black transition-all duration-300 bg-yellow-400 rounded-full hover:bg-yellow-500 focus:bg-yellow-500 group"
+                    className="relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white hover:text-black transition-all duration-300 bg-black rounded-full hover:bg-yellow-400 focus:bg-yellow-400 focus:text-black group"
                   >
                     Join for Free
                     <svg

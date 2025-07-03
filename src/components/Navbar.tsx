@@ -1,29 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, School } from "lucide-react";
+import { GraduationCap, School, ChevronDown, ChevronUp } from "lucide-react";
 import ExploreDropdown from "./ExploreDropdown";
+import Searchbar from "./SearchBar";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isJoinHovered, setIsJoinHovered] = useState(false);
+  const [isOthersOpen, setIsOthersOpen] = useState(false);
+  const [visibleItems, setVisibleItems] = useState<number>(3); // Start with all items visible
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
-  const searchRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const joinButtonRef = useRef<HTMLDivElement>(null);
-
-  const popularCourses = [
-    "Artificial Intelligence",
-    "Data Science",
-    "Blockchain Technology",
-    "Cybersecurity",
-    "Mobile App Development",
-    "Machine Learning",
-    "DevOps Practices",
-  ];
+  const navRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,54 +27,44 @@ const Navbar: React.FC = () => {
       }
     };
 
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsSearchFocused(false);
-      }
-      if (joinButtonRef.current && !joinButtonRef.current.contains(event.target as Node)) {
-        setIsJoinHovered(false);
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      
+      // Calculate how many items can fit based on window width
+      if (window.innerWidth >= 1300) {
+        setVisibleItems(3); // Show all items
+      } else if (window.innerWidth >= 1200) {
+        setVisibleItems(2); // Show 2 items
+      } else if (window.innerWidth >= 1100) {
+        setVisibleItems(1); // Show 1 item
+      } else {
+        setVisibleItems(0); // Mobile view
       }
     };
-
     window.addEventListener("scroll", handleScroll);
-    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("resize", handleResize);
+
+    // Initial calculation
+    handleResize();
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("resize", handleResize);
     };
-  }, [popularCourses.length]);
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     if (isSearchOpen) setIsSearchOpen(false);
-    setIsSearchFocused(false);
   };
 
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
-    if (!isSearchOpen) {
-      setSearchQuery("");
-      setTimeout(() => {
-        inputRef.current?.focus();
-        setIsSearchFocused(true);
-      }, 0);
-    }
     if (isMenuOpen) setIsMenuOpen(false);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Searching for:", searchQuery);
-    setIsSearchFocused(false);
-  };
-
-  const handleSearchFocus = () => {
-    setIsSearchFocused(true);
-  };
-
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchQuery(suggestion);
-    inputRef.current?.focus();
+  const toggleOthers = () => {
+    setIsOthersOpen(!isOthersOpen);
   };
 
   const menuVariants = {
@@ -127,62 +108,6 @@ const Navbar: React.FC = () => {
     }
   };
 
-  const searchVariants = {
-    open: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 20
-      }
-    },
-    closed: {
-      opacity: 0,
-      y: -20,
-      transition: {
-        duration: 0.2
-      }
-    }
-  };
-
-  const suggestionsVariants = {
-    open: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 20,
-        delay: 0.1
-      }
-    },
-    closed: {
-      opacity: 0,
-      y: -10,
-      transition: {
-        duration: 0.15
-      }
-    }
-  };
-
-  const suggestionItemVariants = {
-    initial: { opacity: 0, y: -5 },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.2 }
-    },
-    hover: {
-      backgroundColor: "#f3f4f6",
-      scale: 1.02,
-      transition: { duration: 0.15 }
-    },
-    tap: {
-      scale: 0.98
-    }
-  };
-
   const joinDropdownVariants = {
     open: {
       opacity: 1,
@@ -202,9 +127,40 @@ const Navbar: React.FC = () => {
     }
   };
 
+  const othersDropdownVariants = {
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring" as const,
+        stiffness: 400,
+        damping: 25
+      }
+    },
+    closed: {
+      opacity: 0,
+      y: -10,
+      transition: {
+        duration: 0.15
+      }
+    }
+  };
+
+  // Navigation items that might be hidden under "Others"
+  const navItems = [
+    { name: "Home", href: "/" },
+    { name: "Teach on LearniFy", href: "/teach-on-learnify" },
+    { name: "View Cart", href: "#" }
+  ];
+
+  // Items to show directly
+  const visibleNavItems = navItems.slice(0, visibleItems);
+  // Items to hide under "Others"
+  const hiddenNavItems = navItems.slice(visibleItems);
+
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#FCF8F1] bg-opacity-90 shadow-sm" : "bg-[#FCF8F1] bg-opacity-30"}`}
+      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#FCF8F1] bg-opacity-90 shadow-lg" : "bg-[#FCF8F1] bg-opacity-30"}`}
     >
       <div className="px-4 mx-auto sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -288,201 +244,72 @@ const Navbar: React.FC = () => {
             </motion.button>
           </div>
 
-          {/* Expanded Search Bar (Mobile) */}
-          <AnimatePresence>
-            {isSearchOpen && (
-              <motion.div
-                className="absolute left-0 right-0 z-50 px-4 lg:hidden"
-                initial="closed"
-                animate="open"
-                exit="closed"
-                variants={searchVariants}
-              >
-                <div ref={searchRef} className="relative">
-                  <form onSubmit={handleSearch}>
-                    <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                      <svg
-                        className="w-5 h-5 text-gray-400"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      className="w-full py-2 pl-12 pr-16 text-gray-900 bg-white border-2 border-gray-800 rounded-full focus:border-yellow-400 focus:ring-2 focus:ring-yellow-300 focus:outline-none transition-all duration-200 shadow-lg"
-                      placeholder={`Search anything...`}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onFocus={handleSearchFocus}
-                      autoFocus
-                    />
-                    <motion.button
-                      type="button"
-                      className="absolute inset-y-0 right-0 px-4 text-sm font-medium text-white bg-black rounded-r-full hover:bg-yellow-400 hover:text-black focus:bg-yellow-400 focus:text-black transition-all duration-200"
-                      whileHover={{ backgroundColor: "#FACC15", color: "#000000" }}
-                      onClick={toggleSearch}
-                    >
-                      Close
-                    </motion.button>
-                  </form>
-
-                  {/* Mobile Search Suggestions */}
-                  <AnimatePresence>
-                    {isSearchFocused && (
-                      <motion.div
-                        className="absolute z-10 w-full mt-2 overflow-hidden bg-white rounded-xl shadow-xl border border-gray-100"
-                        initial="closed"
-                        animate="open"
-                        exit="closed"
-                        variants={suggestionsVariants}
-                      >
-                        <div className="py-2">
-                          <div className="px-4 py-3 text-lg font-bold text-black border-b border-gray-100 bg-gray-50">
-                            Popular on Learnify
-                          </div>
-                          <div className="divide-y divide-gray-100">
-                            {popularCourses.map((course, index) => (
-                              <motion.div
-                                key={index}
-                                className="flex items-center px-4 py-3 cursor-pointer"
-                                onClick={() => handleSuggestionClick(course)}
-                                variants={suggestionItemVariants}
-                                initial="initial"
-                                animate="animate"
-                                whileTap="tap"
-                              >
-                                <div className="flex-shrink-0 mr-3 text-gray-400">
-                                  <svg
-                                    className="w-5 h-5"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                </div>
-                                <div className="text-sm font-medium text-gray-800">{course}</div>
-                              </motion.div>
-                            ))}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Desktop Search Bar - Wider version */}
-          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
-            <div ref={searchRef} className="relative w-full">
-              <form onSubmit={handleSearch}>
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <svg
-                    className="w-5 h-5 text-gray-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  className="w-full py-3 pl-10 pr-5 text-gray-900 placeholder-gray-800 bg-white border border-gray-600 rounded-full focus:border-yellow-400 focus:ring-2 focus:ring-yellow-300 focus:outline-none transition-all duration-200 shadow-sm hover:shadow-md"
-                  placeholder={`Search anything...`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={handleSearchFocus}
-                />
-                <motion.button
-                  type="submit"
-                  className="absolute inset-y-0 right-0 px-6 text-sm font-medium text-white bg-black rounded-r-full hover:bg-yellow-400 hover:text-black focus:bg-yellow-400 focus:text-black transition-all duration-200"
-                  whileHover={{
-                    backgroundColor: "#FACC15",
-                    color: "#000000",
-                    scale: 1
-                  }}
-                  whileTap={{ scale: 1 }}
-                >
-                  Search
-                </motion.button>
-              </form>
-
-              {/* Desktop Search Suggestions */}
-              <AnimatePresence>
-                {isSearchFocused && (
-                  <motion.div
-                    className="absolute z-10 w-full mt-2 overflow-hidden bg-white rounded-xl shadow-xl border border-gray-100"
-                    initial="closed"
-                    animate="open"
-                    exit="closed"
-                    variants={suggestionsVariants}
-                  >
-                    <div className="py-2">
-                      <div className="px-4 py-3 text-lg font-bold text-black border-b border-gray-100 bg-gray-50">
-                        Popular on Learnify
-                      </div>
-                      <div className="divide-y divide-gray-100">
-                        {popularCourses.map((course, index) => (
-                          <motion.div
-                            key={index}
-                            className="flex items-center px-4 py-3 cursor-pointer"
-                            onClick={() => handleSuggestionClick(course)}
-                            variants={suggestionItemVariants}
-                            initial="initial"
-                            animate="animate"
-                            whileTap="tap"
-                          >
-                            <div className="flex-shrink-0 mr-3 text-gray-400">
-                              <svg
-                                className="w-5 h-5"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                            <div className="text-sm font-medium text-gray-800">{course}</div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+          {/* Explore Dropdown - Hidden when search is open on mobile */}
+          <div className="hidden lg:flex lg:items-center font-semibold lg:justify-center lg:space-x-10 pr-4">
+            <h1 className="text-lg text-black transition-all duration-200 hover:text-opacity-80"><ExploreDropdown /></h1>
           </div>
 
+          {/* Searchbar components */}
+          <Searchbar isSearchOpen={isSearchOpen} toggleSearch={toggleSearch} isMobile />
+          <Searchbar isSearchOpen={isSearchOpen} toggleSearch={toggleSearch} />
+
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:items-center font-semibold lg:justify-center lg:space-x-10 pr-4">
-            <a href="/" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Home</a>
-            <h1 className="text-lg text-black transition-all duration-200 hover:text-opacity-80"><ExploreDropdown /></h1>
-            <a href="/teach-on-learnify" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">Teach on LearniFy</a>
-            <a href="#" className="text-lg text-black transition-all duration-200 hover:text-opacity-80">View Cart</a>
+          <div className="hidden lg:flex lg:items-center font-semibold lg:justify-center lg:space-x-4 pr-4" ref={navRef}>
+            {visibleNavItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="text-lg text-black transition-all duration-200 hover:text-opacity-80 whitespace-nowrap ml-6"
+              >
+                {item.name}
+              </a>
+            ))}
+
+            {/* Others dropdown only if there are hidden items */}
+            {hiddenNavItems.length > 0 && (
+              <div
+                className="relative"
+                onMouseEnter={() => windowWidth >= 1024 && setIsOthersOpen(true)}
+                onMouseLeave={() => windowWidth >= 1024 && setIsOthersOpen(false)}
+              >
+                <button
+                  onClick={toggleOthers}
+                  className="flex items-center text-lg text-black transition-all duration-200 cursor-pointer hover:text-opacity-80 whitespace-nowrap"
+                >
+                  Others
+                  {isOthersOpen ? (
+                    <ChevronUp className="ml-1 w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="ml-1 w-4 h-4" />
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {isOthersOpen && (
+                    <motion.div
+                      className="absolute right-0 z-50 mt-2 w-52 origin-top-right"
+                      initial="closed"
+                      animate="open"
+                      exit="closed"
+                      variants={othersDropdownVariants}
+                    >
+                      <div className="rounded-lg shadow-lg bg-white overflow-hidden border border-gray-200 py-1">
+                        {hiddenNavItems.map((item) => (
+                          <a
+                            key={item.name}
+                            href={item.href}
+                            className="block px-4 py-2 text-lg transition-colors duration-150"
+                            onClick={() => setIsOthersOpen(false)}
+                          >
+                            {item.name}
+                          </a>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
 
           {/* Join Now Button with Dropdown */}
@@ -529,7 +356,7 @@ const Navbar: React.FC = () => {
                     <div className="border-t border-gray-200" />
 
                     <motion.a
-                      href="/instructor-signup"
+                      href="/instructor-register"
                       className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
                       whileHover={{ x: 4 }}
                     >
@@ -594,7 +421,7 @@ const Navbar: React.FC = () => {
                   </div>
                 </motion.a>
                 <motion.a
-                  href="#"
+                  href="/instructor-register"
                   className="flex px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}

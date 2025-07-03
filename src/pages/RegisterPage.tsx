@@ -132,13 +132,14 @@ const RegisterPage: React.FC = () => {
             >
               {/* Button */}
               <motion.button
-                type="submit"
+                type="button"
                 className="mt-5 w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 transition-all duration-50 text-sm sm:text-base md:text-lg font-medium cursor-pointer"
                 whileHover={{
                   backgroundColor: "#FACC15",
                   scale: 1.02
                 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => window.location.href = "/instructor-register"}
               >
                 Register as Instructor
               </motion.button>
@@ -286,7 +287,7 @@ const RegisterPage: React.FC = () => {
                 </li>
               </ul>
               <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-100">
-                <button className="text-xs font-semibold text-purple-600 hover:text-purple-800 hover:underline">
+                <button className="text-xs font-semibold text-purple-600 hover:text-purple-800 hover:underline" onClick={() => window.location.href = "/teach-on-learnify"}>
                   Start teaching today →
                 </button>
               </div>
@@ -294,7 +295,7 @@ const RegisterPage: React.FC = () => {
 
             {/* Button */}
             <motion.button
-              className="px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm sm:text-base relative overflow-hidden group"
+              className="cursor-pointer px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm sm:text-base relative overflow-hidden group"
               whileHover={{
                 scale: 1.03,
                 boxShadow: "0 10px 20px -5px rgba(124, 58, 237, 0.4)"
@@ -303,6 +304,7 @@ const RegisterPage: React.FC = () => {
                 scale: 0.98,
                 boxShadow: "0 5px 10px -3px rgba(124, 58, 237, 0.4)"
               }}
+              onClick={() => window.location.href = "/instructor-register"}
             >
               <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">

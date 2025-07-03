@@ -342,7 +342,7 @@ const Navbar: React.FC = () => {
                 >
                   <div className="rounded-xl shadow-lg bg-white overflow-hidden border border-gray-200">
                     <motion.a
-                      href="/login"
+                      href="/register"
                       className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
                       whileHover={{ x: 4 }}
                     >
@@ -409,7 +409,7 @@ const Navbar: React.FC = () => {
                   View Cart
                 </motion.a>
                 <motion.a
-                  href="/login"
+                  href="/register"
                   className="flex px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                   variants={menuItemVariants}

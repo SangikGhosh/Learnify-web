@@ -122,13 +122,14 @@ const LoginPage: React.FC = () => {
             >
               {/* Button */}
               <motion.button
-                type="submit"
+                type="button"
                 className="mt-5 w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 transition-all duration-50 text-sm sm:text-base md:text-lg font-medium cursor-pointer"
                 whileHover={{
                   backgroundColor: "#FACC15",
                   scale: 1.02
                 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => window.location.href = "/instructor-login"}
               >
                 Login as Instructor
               </motion.button>
@@ -165,7 +166,7 @@ const LoginPage: React.FC = () => {
                   </li>
                 </ul>
                 <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-100">
-                  <button className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline">
+                  <button className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline" onClick={() => window.location.href = "/teach-on-learnify"}>
                     Learn more about teaching →
                   </button>
                 </div>
@@ -262,7 +263,7 @@ const LoginPage: React.FC = () => {
                 </li>
               </ul>
               <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-100">
-                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline">
+                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline" onClick={() => window.location.href = "/teach-on-learnify"}>
                   Learn more about teaching →
                 </button>
               </div>
@@ -279,6 +280,7 @@ const LoginPage: React.FC = () => {
                 scale: 0.98,
                 boxShadow: "0 5px 10px -3px rgba(59, 130, 246, 0.4)"
               }}
+              onClick={() => window.location.href = "/instructor-login"}
             >
               <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">

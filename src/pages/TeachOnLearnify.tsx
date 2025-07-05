@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
+import { motion, type Variants } from "framer-motion";
 import learnifypng from '../assets/Images/Learnify.png';
 
 type Stat = {
@@ -23,7 +24,6 @@ interface ReasonItemProps {
     description: string;
 }
 
-
 type Step = 'plan' | 'record' | 'launch';
 
 interface StepContent {
@@ -41,16 +41,16 @@ const steps: Record<Step, StepContent> = {
             'The way that you teach — what you bring to it — is up to you.',
         ],
         help: 'We offer plenty of resources on how to create your first course. Our instructor dashboard and curriculum pages help keep you organized.',
-        image: 'https://s.udemycdn.com/teaching/plan-your-curriculum-v3.jpg', // Replace with your actual link
+        image: 'https://s.udemycdn.com/teaching/plan-your-curriculum-v3.jpg',
     },
     record: {
         title: 'Record your video',
         description: [
-            'Use basic tools like a smartphone or DSLR camera. Add a good microphone and you’re ready.',
-            'If you don’t like being on camera, just capture your screen. Aim for at least 2 hours of video.',
+            'Use basic tools like a smartphone or DSLR camera. Add a good microphone and you\'re ready.',
+            'If you don\'t like being on camera, just capture your screen. Aim for at least 2 hours of video.',
         ],
         help: 'Our support team can give feedback on test videos and help with setup.',
-        image: 'https://s.udemycdn.com/teaching/record-your-video-v3.jpg', // Replace with your actual link
+        image: 'https://s.udemycdn.com/teaching/record-your-video-v3.jpg',
     },
     launch: {
         title: 'Launch your course',
@@ -59,10 +59,9 @@ const steps: Record<Step, StepContent> = {
             'Your course will appear in our marketplace and generate revenue from enrollments.',
         ],
         help: 'Use our coupon tool for offers and benefit from global promotions & Udemy Business.',
-        image: 'https://s.udemycdn.com/teaching/launch-your-course-v3.jpg', // Replace with your actual link
+        image: 'https://s.udemycdn.com/teaching/launch-your-course-v3.jpg',
     },
 };
-
 
 const reasons: ReasonItemProps[] = [
     {
@@ -117,12 +116,48 @@ const instructors = [
     }
 ];
 
+// Animation Variants
+const fadeInVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.6,
+            ease: "easeOut"
+        }
+    }
+};
+
+const staggerContainer: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            when: "beforeChildren"
+        }
+    }
+};
+
+const buttonTapVariants: Variants = {
+    tap: { scale: 0.98 }
+};
+
+const instructorFadeVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 }
+};
+
 const ReasonItem: React.FC<ReasonItemProps> = ({ iconUrl, title, description }) => (
-    <div className="flex flex-col items-center text-center max-w-sm px-4">
+    <motion.div 
+        className="flex flex-col items-center text-center max-w-sm px-4"
+        variants={fadeInVariants}
+    >
         <img src={iconUrl} alt={title} className="w-24 h-24 mb-4" />
         <h3 className="text-xl font-semibold mb-2">{title}</h3>
         <p className="text-lg text-gray-600">{description}</p>
-    </div>
+    </motion.div>
 );
 
 const TeachOnLearnify: React.FC = () => {
@@ -135,7 +170,7 @@ const TeachOnLearnify: React.FC = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             setActiveInstructor((prev) => (prev === instructors.length - 1 ? 0 : prev + 1));
-        }, 6000); // Change every 6 seconds
+        }, 6000);
 
         return () => clearInterval(interval);
     }, []);
@@ -159,15 +194,20 @@ const TeachOnLearnify: React.FC = () => {
         return () => intervals.forEach(clearInterval);
     }, [inView]);
 
-
     return (
         <div className="bg-[#FCF8F1] pt-8 sm:pt-16 md:pt-18 lg:pt-20 xl:pt-26">
             {/* Hero Section */}
-            <section className="pt-12 pb-20 sm:pb-16 lg:pt-8">
+            <motion.section 
+                className="pt-12 pb-20 sm:pb-16 lg:pt-8"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={staggerContainer}
+            >
                 <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="grid max-w-lg grid-cols-1 mx-auto lg:max-w-full lg:items-center lg:grid-cols-2 gap-y-12 lg:gap-x-16">
                         <div>
-                            <div className="text-center lg:text-left">
+                            <motion.div className="text-center lg:text-left" variants={fadeInVariants}>
                                 <h1 className="text-4xl font-bold leading-tight text-gray-900 sm:text-5xl sm:leading-tight lg:leading-tight lg:text-6xl font-pj">Share Your Knowledge with the World</h1>
                                 <p className="mt-2 text-lg text-gray-600 sm:mt-8 font-inter">
                                     Join our community of expert instructors and teach what you love.
@@ -175,22 +215,29 @@ const TeachOnLearnify: React.FC = () => {
                                 </p>
 
                                 <div className="flex flex-col sm:flex-row gap-4 mt-8 sm:mt-10">
-                                    <a
+                                    <motion.a
                                         href="/instructor-register"
                                         className="inline-flex px-6 py-3 text-lg font-bold text-white transition-all duration-200 bg-gray-900 rounded-lg focus:outline-none focus:bg-yellow-500 font-pj hover:bg-yellow-400 hover:text-black focus:text-black text-center justify-center"
+                                        variants={buttonTapVariants}
+                                        whileTap="tap"
                                     >
                                         Become an Instructor
-                                    </a>
-                                    <a
+                                    </motion.a>
+                                    <motion.a
                                         href="/instructor-login"
                                         className="inline-flex px-6 py-3 text-lg font-bold text-gray-900 transition-all duration-200 bg-[#FCF8F1] border border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 font-pj hover:bg-gray-100 text-center justify-center"
+                                        variants={buttonTapVariants}
+                                        whileTap="tap"
                                     >
                                         Instructor Login
-                                    </a>
+                                    </motion.a>
                                 </div>
-                            </div>
+                            </motion.div>
 
-                            <div className="flex items-center justify-center mt-10 space-x-6 lg:justify-start sm:space-x-8">
+                            <motion.div 
+                                className="flex items-center justify-center mt-10 space-x-6 lg:justify-start sm:space-x-8"
+                                variants={fadeInVariants}
+                            >
                                 <div className="flex items-center">
                                     <p className="text-3xl font-medium text-gray-900 sm:text-4xl font-pj">10K+</p>
                                     <p className="ml-3 text-sm text-gray-900 font-pj">Active<br />Instructors</p>
@@ -210,78 +257,109 @@ const TeachOnLearnify: React.FC = () => {
                                     <p className="text-3xl font-medium text-gray-900 sm:text-4xl font-pj">$5M+</p>
                                     <p className="ml-3 text-sm text-gray-900 font-pj">Paid to<br />Instructors</p>
                                 </div>
-                            </div>
+                            </motion.div>
                         </div>
 
-                        <div>
+                        <motion.div variants={fadeInVariants}>
                             <img
                                 className="w-full"
                                 src="https://s.udemycdn.com/career-academies/careers/digital-marketer/digital-marketer-hero.png"
                                 alt="Instructor teaching online"
                             />
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
-            </section>
+            </motion.section>
 
             {/* Reasons Section */}
-            <section className="py-18">
+            <motion.section 
+                className="py-18"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={staggerContainer}
+            >
                 <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="text-center mb-10">
+                    <motion.div className="text-center mb-10" variants={fadeInVariants}>
                         <h2 className="text-6xl font-bold text-black pb-20">So Many Reasons to Start</h2>
-                    </div>
-                    <div className="flex flex-col md:flex-row justify-center gap-12 items-center pb-16">
+                    </motion.div>
+                    <motion.div 
+                        className="flex flex-col md:flex-row justify-center gap-12 items-center pb-16"
+                        variants={staggerContainer}
+                    >
                         {reasons.map((reason, index) => (
                             <ReasonItem key={index} {...reason} />
                         ))}
-                    </div>
+                    </motion.div>
                 </div>
-            </section>
+            </motion.section>
 
             {/* Stats Section */}
-            <div ref={ref} className="bg-blue-600 py-24 text-white flex gap-26 justify-center flex-wrap">
+            <motion.div 
+                ref={ref} 
+                className="bg-blue-600 py-24 text-white flex gap-26 justify-center flex-wrap"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={staggerContainer}
+            >
                 {stats.map((stat, index) => (
-                    <div key={stat.label} className="text-center m-4">
+                    <motion.div 
+                        key={stat.label} 
+                        className="text-center m-4"
+                        variants={fadeInVariants}
+                    >
                         <h2 className="text-6xl font-bold">
                             {counts[index].toFixed(stat.target < 10 ? 1 : 0)}
                             {stat.suffix}
                         </h2>
                         <p className="mt-2">{stat.label}</p>
-                    </div>
+                    </motion.div>
                 ))}
-            </div>
+            </motion.div>
 
             {/* How to begin Section */}
-            <section className="relative max-w-6xl mx-auto px-6 py-16 sm:py-20 overflow-hidden bg-[#FCF8F1]">
-                <div className="text-center mb-16">
+            <motion.section 
+                className="relative max-w-6xl mx-auto px-6 py-16 sm:py-20 overflow-hidden bg-[#FCF8F1]"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={staggerContainer}
+            >
+                <motion.div className="text-center mb-16" variants={fadeInVariants}>
                     <h2 className="text-4xl sm:text-6xl font-bold text-black mb-4">
                         Start Teaching in Minutes
                     </h2>
                     <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                         Follow these simple steps to begin your journey as an instructor and share your knowledge with the world.
                     </p>
-                </div>
+                </motion.div>
 
                 {/* Enhanced Tabs */}
-                <div className="flex justify-center mb-12">
+                <motion.div className="flex justify-center mb-12" variants={fadeInVariants}>
                     <div className="inline-flex bg-[#FCF8F1] rounded-full p-1">
                         {Object.entries(steps).map(([key, value]) => (
-                            <button
+                            <motion.button
                                 key={key}
                                 onClick={() => setActive(key as Step)}
                                 className={`px-6 py-3 text-sm sm:text-2xl font-semibold rounded-full transition-all duration-300 ${active === key
-                                    ? 'bg-[#FCF8F1] shadow-md text-blue-600'
+                                    ? 'bg-[#FCF8F1] text-blue-600'
                                     : 'text-gray-600 hover:text-gray-900 hover:bg-[#FCF8F1]'
                                     }`}
+                                variants={buttonTapVariants}
+                                whileTap="tap"
                             >
                                 {value.title}
-                            </button>
+                            </motion.button>
                         ))}
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Content with Fancy Card */}
-                <div className="bg-[#FCF8F1] rounded-xl overflow-hidden">
+                <motion.div 
+                    className="bg-[#FCF8F1] rounded-xl overflow-hidden"
+                    variants={fadeInVariants}
+                >
                     <div className="flex flex-col lg:flex-row">
                         <div className="flex-1 p-8 sm:p-10 lg:p-12">
                             <div className="space-y-6">
@@ -325,23 +403,32 @@ const TeachOnLearnify: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </motion.div>
+            </motion.section>
 
             {/* Instructor Feedback - Full Screen Carousel */}
             <section className="relative h-auto min-h-screen w-full bg-[#FCF8F1]">
                 <div className="container mx-auto px-4 py-12 md:py-24">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-8 md:mb-16">
+                    <motion.h2 
+                        className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-8 md:mb-16"
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeInVariants}
+                    >
                         What Our Top Instructors Say
-                    </h2>
+                    </motion.h2>
 
                     <div className="relative h-[500px] md:h-[600px] w-full">
                         {instructors.map((instructor, index) => (
-                            <div
+                            <motion.div
                                 key={instructor.id}
                                 className={`absolute inset-0 flex flex-col md:flex-row items-center justify-center md:justify-evenly transition-opacity duration-1000 ease-in-out ${activeInstructor === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                                variants={instructorFadeVariants}
+                                initial="hidden"
+                                animate={activeInstructor === index ? "visible" : "hidden"}
                             >
-                                {/* Instructor Image - EXACTLY as you had it */}
+                                {/* Instructor Image */}
                                 <div className="w-full md:w-3/4 lg:w-1/4 flex justify-center mb-8 md:mb-0">
                                     <div className="relative pt-24">
                                         <img
@@ -352,7 +439,7 @@ const TeachOnLearnify: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Testimonial Content - EXACTLY as you had it */}
+                                {/* Testimonial Content */}
                                 <div className="w-full lg:w-2/4 xl:w-2/5 text-center md:text-left md:px-12">
                                     <div className="max-w-2xl mx-auto">
                                         <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
@@ -377,12 +464,11 @@ const TeachOnLearnify: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         ))}
                     </div>
                 </div>
             </section>
-
         </div>
     )
 }

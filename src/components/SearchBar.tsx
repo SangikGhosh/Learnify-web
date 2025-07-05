@@ -137,7 +137,7 @@ const Searchbar: React.FC<SearchbarProps> = ({ isSearchOpen, toggleSearch, isMob
                 <input
                   ref={inputRef}
                   type="text"
-                  className="w-full py-2 pl-12 pr-16 text-gray-900 bg-white border-2 border-gray-800 rounded-full focus:border-yellow-400 focus:ring-2 focus:ring-yellow-300 focus:outline-none transition-all duration-200 shadow-lg"
+                  className="w-full py-2 pl-12 pr-16 text-gray-900 bg-white border-2 border-white rounded-full focus:outline-none transition-all duration-200 shadow-lg"
                   placeholder={`Search anything...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -228,7 +228,7 @@ const Searchbar: React.FC<SearchbarProps> = ({ isSearchOpen, toggleSearch, isMob
           <input
             ref={inputRef}
             type="text"
-            className="w-full py-3 pl-10 pr-5 text-gray-900 placeholder-gray-800 bg-white border border-gray-600 rounded-full focus:border-yellow-400 focus:ring-2 focus:ring-yellow-300 focus:outline-none transition-all duration-200 shadow-sm hover:shadow-md"
+            className="w-full py-3 pl-10 pr-5 text-gray-900 placeholder-gray-800 bg-white border border-gray-600 rounded-full focus:border-black focus:shadow-2xl focus:outline-none transition-all duration-200 shadow-sm"
             placeholder={`Search anything...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

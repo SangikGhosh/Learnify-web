@@ -9,6 +9,7 @@ import RegisterPage from "./pages/RegisterPage";
 import TeachOnLearnify from "./pages/TeachOnLearnify";
 import InstructorRegister from "./pages/InstructorRegister";
 import InstructorLogin from "./pages/InstructorLogin";
+import VerifyOTPPage from "./pages/VerifyOTPPage";
 
 function AppContent() {
   const location = useLocation();
@@ -22,6 +23,7 @@ function AppContent() {
     "/forgot-password",
     "/instructor-register",
     "/instructor-login",
+    "/verify-otp",
   ].includes(location.pathname);
 
   useEffect(() => {
@@ -40,6 +42,7 @@ function AppContent() {
         <Route path="/teach-on-learnify" element={ <TeachOnLearnify /> } />
         <Route path="/instructor-register" element={ <InstructorRegister /> } />
         <Route path="/instructor-login" element={<InstructorLogin />} />
+        <Route path="/verify-otp" element={ <VerifyOTPPage /> } />
       </Routes>
       {!hideLayout && <Footer />}
     </>

@@ -195,7 +195,7 @@ const TeachOnLearnify: React.FC = () => {
     }, [inView]);
 
     return (
-        <div className="bg-[#FCF8F1] pt-8 sm:pt-16 md:pt-18 lg:pt-20 xl:pt-26">
+        <div className="bg-white pt-8 sm:pt-16 md:pt-18 lg:pt-20 xl:pt-26">
             {/* Hero Section */}
             <motion.section 
                 className="pt-12 pb-20 sm:pb-16 lg:pt-8"
@@ -225,7 +225,7 @@ const TeachOnLearnify: React.FC = () => {
                                     </motion.a>
                                     <motion.a
                                         href="/instructor-login"
-                                        className="inline-flex px-6 py-3 text-lg font-bold text-gray-900 transition-all duration-200 bg-[#FCF8F1] border border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 font-pj hover:bg-gray-100 text-center justify-center"
+                                        className="inline-flex px-6 py-3 text-lg font-bold text-gray-900 transition-all duration-200 bg-white border border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 font-pj hover:bg-gray-100 text-center justify-center"
                                         variants={buttonTapVariants}
                                         whileTap="tap"
                                     >
@@ -320,7 +320,7 @@ const TeachOnLearnify: React.FC = () => {
 
             {/* How to begin Section */}
             <motion.section 
-                className="relative max-w-6xl mx-auto px-6 py-16 sm:py-20 overflow-hidden bg-[#FCF8F1]"
+                className="relative max-w-6xl mx-auto px-6 py-16 sm:py-20 overflow-hidden bg-white"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
@@ -337,14 +337,14 @@ const TeachOnLearnify: React.FC = () => {
 
                 {/* Enhanced Tabs */}
                 <motion.div className="flex justify-center mb-12" variants={fadeInVariants}>
-                    <div className="inline-flex bg-[#FCF8F1] rounded-full p-1">
+                    <div className="inline-flex bg-white rounded-full p-1">
                         {Object.entries(steps).map(([key, value]) => (
                             <motion.button
                                 key={key}
                                 onClick={() => setActive(key as Step)}
                                 className={`px-6 py-3 text-sm sm:text-2xl font-semibold rounded-full transition-all duration-300 ${active === key
-                                    ? 'bg-[#FCF8F1] text-blue-600'
-                                    : 'text-gray-600 hover:text-gray-900 hover:bg-[#FCF8F1]'
+                                    ? 'bg-white text-blue-600'
+                                    : 'text-gray-600 hover:text-gray-900 hover:bg-white'
                                     }`}
                                 variants={buttonTapVariants}
                                 whileTap="tap"
@@ -357,7 +357,7 @@ const TeachOnLearnify: React.FC = () => {
 
                 {/* Content with Fancy Card */}
                 <motion.div 
-                    className="bg-[#FCF8F1] rounded-xl overflow-hidden"
+                    className="bg-white rounded-xl overflow-hidden"
                     variants={fadeInVariants}
                 >
                     <div className="flex flex-col lg:flex-row">
@@ -376,7 +376,7 @@ const TeachOnLearnify: React.FC = () => {
                                     ))}
                                 </div>
 
-                                <div className="mt-8 p-6 bg-[#FCF8F1] rounded-lg">
+                                <div className="mt-8 p-6 bg-white rounded-lg">
                                     <div className="flex items-start">
                                         <div className="flex-shrink-0 mt-1">
                                             <svg className="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,7 +392,7 @@ const TeachOnLearnify: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="flex-1 bg-[#FCF8F1] p-8 flex items-center justify-center">
+                        <div className="flex-1 bg-white p-8 flex items-center justify-center">
                             <div className="relative w-full max-w-xl mx-auto">
                                 <div className="absolute -inset-4 rounded-2xl opacity-20 blur"></div>
                                 <img
@@ -407,7 +407,7 @@ const TeachOnLearnify: React.FC = () => {
             </motion.section>
 
             {/* Instructor Feedback - Full Screen Carousel */}
-            <section className="relative h-auto min-h-screen w-full bg-[#FCF8F1]">
+            <section className="relative h-auto min-h-screen w-full bg-white">
                 <div className="container mx-auto px-4 py-12 md:py-24">
                     <motion.h2 
                         className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-8 md:mb-16"

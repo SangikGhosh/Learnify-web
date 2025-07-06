@@ -281,10 +281,10 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FCF8F1]">
+    <div className="bg-white">
       {/* Hero Section */}
       <div className="min-h-screen flex items-center pt-12">
-        <section className="w-full bg-[#FCF8F1] bg-opacity-30 py-8 sm:py-12 lg:py-16 xl:py-20">
+        <section className="w-full bg-white bg-opacity-30 py-8 sm:py-12 lg:py-16 xl:py-20">
           <div className="px-5 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <motion.div
               className="grid items-center grid-cols-1 gap-10 md:gap-16 lg:grid-cols-2 lg:gap-20"
@@ -389,7 +389,7 @@ const HomePage: React.FC = () => {
 
       {/* Community Section - Featured Courses */}
       <motion.section
-        className="relative bg-[#FCF8F1] py-16"
+        className="relative bg-white py-16"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -475,7 +475,6 @@ const HomePage: React.FC = () => {
                         className="object-cover w-full h-48"
                         src={course.image}
                         alt={course.title}
-                        whileHover={{ scale: 1.02 }}
                         transition={{ duration: 0.2 }}
                       />
                       {course.tag && (
@@ -536,7 +535,6 @@ const HomePage: React.FC = () => {
           >
             <motion.button
               className="px-8 py-3 text-base font-medium text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
-              whileHover={{ scale: 1.03, backgroundColor: "#2563eb" }}
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.1 }}
             >

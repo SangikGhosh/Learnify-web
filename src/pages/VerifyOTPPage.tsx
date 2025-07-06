@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, type Variants } from "framer-motion";
 import { ArrowLeft, Mail } from 'lucide-react';
 
@@ -22,6 +22,25 @@ const buttonTapVariants = {
 const VerifyOTPPage: React.FC = () => {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [email] = useState("user@example.com");
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    inputRefs.current[0]?.focus();
+    
+    // Timer countdown
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleOtpChange = (element: HTMLInputElement, index: number) => {
     if (isNaN(Number(element.value))) return false;
@@ -31,9 +50,33 @@ const VerifyOTPPage: React.FC = () => {
     setOtp(newOtp);
     
     // Focus next input
-    if (element.value && element.nextSibling) {
-      (element.nextSibling as HTMLInputElement).focus();
+    if (element.value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
     }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text/plain').slice(0, 6);
+    const newOtp = [...otp];
+    
+    for (let i = 0; i < pasteData.length; i++) {
+      if (i < 6 && !isNaN(Number(pasteData[i]))) {
+        newOtp[i] = pasteData[i];
+      }
+    }
+    
+    setOtp(newOtp);
+    
+    // Focus the last input with data
+    const lastFilledIndex = Math.min(pasteData.length - 1, 5);
+    inputRefs.current[lastFilledIndex]?.focus();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -42,6 +85,20 @@ const VerifyOTPPage: React.FC = () => {
     console.log("OTP submitted:", fullOtp);
     // Here you would typically verify the OTP with your backend
   };
+
+  const handleResendCode = () => {
+    // Reset timer and resend OTP logic
+    setTimeLeft(600);
+    console.log("Resending OTP...");
+    // Add your resend OTP logic here
+  };
+
+  const isOtpComplete = otp.join("").length === 6;
+
+  // Format time as MM:SS
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
   return (
     <div className="min-h-screen bg-[#FCF8F1] text-black flex flex-col justify-center items-center px-4 sm:px-6 py-8 sm:py-12">
@@ -61,7 +118,7 @@ const VerifyOTPPage: React.FC = () => {
           className="flex flex-col items-center"
           variants={fadeInVariants}
         >
-          <div className="w-full px-2 lg:px-0 text-center">
+          <div className="w-full px-2 text-center">
             <div className="flex justify-between w-full mb-6 sm:mb-8">
               <motion.button
                 className="flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-900 rounded-lg hover:bg-black hover:text-white transition-colors text-sm sm:text-base cursor-pointer"
@@ -75,7 +132,7 @@ const VerifyOTPPage: React.FC = () => {
             </div>
 
             <motion.h1 
-              className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 pt-8 lg:pt-0"
+              className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 pt-8"
               variants={fadeInVariants}
             >
               Verify Your Email
@@ -105,11 +162,14 @@ const VerifyOTPPage: React.FC = () => {
                   {otp.map((data, index) => (
                     <input
                       key={index}
+                      ref={(el) => { inputRefs.current[index] = el; }}
                       type="text"
                       maxLength={1}
                       className="w-12 h-12 sm:w-14 sm:h-14 text-center text-xl sm:text-2xl border border-gray-400 focus:border-black rounded-lg focus:outline-none focus:ring focus:ring-black"
                       value={data}
                       onChange={(e) => handleOtpChange(e.target, index)}
+                      onKeyDown={(e) => handleKeyDown(e, index)}
+                      onPaste={handlePaste}
                       onFocus={(e) => e.target.select()}
                     />
                   ))}
@@ -118,10 +178,14 @@ const VerifyOTPPage: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className="w-full bg-black text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 focus:text-black hover:text-black transition-all duration-100 text-sm sm:text-base md:text-lg font-medium cursor-pointer"
+                className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-100 text-sm sm:text-base md:text-lg font-medium cursor-pointer ${
+                  isOtpComplete
+                    ? 'bg-black text-white hover:bg-yellow-400 hover:text-black focus:bg-yellow-500 focus:text-black'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
                 variants={buttonTapVariants}
-                whileTap="tap"
-                disabled={otp.join("").length !== 6}
+                whileTap={isOtpComplete ? "tap" : undefined}
+                disabled={!isOtpComplete}
               >
                 Verify OTP
               </motion.button>
@@ -131,14 +195,16 @@ const VerifyOTPPage: React.FC = () => {
                   Didn't receive the code?{" "}
                   <button 
                     type="button" 
-                    className="font-semibold text-blue-600 hover:underline focus:outline-none"
+                    className="font-semibold text-blue-600 hover:text-blue-700 focus:outline-none"
+                    onClick={handleResendCode}
+                    disabled={timeLeft > 0}
                   >
                     Resend Code
                   </button>
                 </p>
                 
                 <p className="text-xs sm:text-sm text-gray-500">
-                  The code will expire in <span className="font-bold">04:59</span>
+                  The code will expire in <span className="font-bold">{formattedTime}</span>
                 </p>
               </div>
             </motion.form>

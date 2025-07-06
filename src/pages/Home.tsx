@@ -15,9 +15,7 @@ interface Course {
   };
 }
 
-
 const HomePage: React.FC = () => {
-
   const [courses] = useState<Course[]>([
     {
       id: 1,
@@ -150,135 +148,137 @@ const HomePage: React.FC = () => {
     return stars;
   };
 
+  // Faster animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
       },
     },
   };
 
   const itemVariants: Variants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 10, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.5,
-        ease: "easeOut", // This is now valid as "easeOut" is a predefined easing
+        duration: 0.3,
+        ease: "easeOut",
       },
     },
   };
 
   const imageVariants: Variants = {
-    hidden: { scale: 0.9, opacity: 0 },
+    hidden: { scale: 0.95, opacity: 0 },
     visible: {
       scale: 1,
       opacity: 1,
       transition: {
-        duration: 0.8,
+        duration: 0.4,
         ease: "easeOut",
       },
     },
   };
 
   const gradientTextVariants = {
-    hidden: { opacity: 0, x: -20 },
+    hidden: { opacity: 0, x: -10 },
     visible: {
       opacity: 1,
       x: 0,
       transition: {
-        duration: 0.8,
-        delay: 0.5,
+        duration: 0.4,
+        delay: 0.2,
       },
     },
   };
 
   const sectionVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-      when: "beforeChildren",
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.03,
+        when: "beforeChildren",
+      },
     },
-  },
-};
+  };
 
-const headingVariants: Variants = {
-  hidden: { y: 10, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut",
+  const headingVariants: Variants = {
+    hidden: { y: 5, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.2,
+        ease: "easeOut",
+      },
     },
-  },
-};
+  };
 
-const paragraphVariants: Variants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 0.6,
-      delay: 0.2,
-      ease: "easeOut",
+  const paragraphVariants: Variants = {
+    hidden: { y: 10, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        delay: 0.1,
+        ease: "easeOut",
+      },
     },
-  },
-};
+  };
 
-const courseCardVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: 0.05 * i,
-      duration: 0.3,
-      ease: "easeOut",
+  const courseCardVariants: Variants = {
+    hidden: { opacity: 0, y: 5 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: 0.03 * i,
+        duration: 0.2,
+        ease: "easeOut",
+      },
+    }),
+    hover: {
+      y: -2,
+      transition: { duration: 0.1 }
+    }
+  };
+
+  const buttonVariants: Variants = {
+    hidden: { opacity: 0, y: 5 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: 0.2,
+        duration: 0.3,
+        ease: "easeOut",
+      },
     },
-  }),
-  hover: {
-    y: -3, // Reduced lift amount
-    transition: { duration: 0.15 } // Much faster hover transition
-  }
-};
-
-const buttonVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: 0.4,
-      duration: 0.5,
-      ease: "easeOut",
+    hover: {
+      scale: 1.03,
+      transition: { duration: 0.1 },
     },
-  },
-  hover: {
-    scale: 1.05,
-    transition: { duration: 0.2 },
-  },
-  tap: {
-    scale: 0.98,
-  },
-};
+    tap: {
+      scale: 0.98,
+    },
+  };
 
-const arrowButtonVariants: Variants = {
-  hover: {
-    scale: 1.1,
-    backgroundColor: "#f9fafb",
-  },
-  tap: {
-    scale: 0.95,
-  },
-};
+  const arrowButtonVariants: Variants = {
+    hover: {
+      scale: 1.05,
+      backgroundColor: "#f9fafb",
+      transition: { duration: 0.1 }
+    },
+    tap: {
+      scale: 0.95,
+    },
+  };
 
   return (
     <div className="bg-[#FCF8F1]">
@@ -295,10 +295,12 @@ const arrowButtonVariants: Variants = {
               {/* Text Content */}
               <div className="text-center lg:text-left">
                 <motion.p
-                  className="text-sm sm:text-base font-bold tracking-widest text-blue-600 uppercase"
+                  className="text-sm sm:text-base font-bold tracking-widest uppercase"
                   variants={itemVariants}
                 >
-                  A SOCIAL NETWORK FOR MODERN LEARNERS
+                  <span className="bg-gradient-to-r from-blue-700 to-purple-600 bg-clip-text text-transparent">
+                    A SOCIAL NETWORK FOR MODERN LEARNERS
+                  </span>
                 </motion.p>
 
                 <motion.h1
@@ -328,12 +330,12 @@ const arrowButtonVariants: Variants = {
                   <motion.a
                     href="/register"
                     className="relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white hover:text-black transition-all duration-300 bg-black rounded-xl hover:bg-yellow-400 focus:bg-yellow-400 focus:text-black group"
-                    whileHover={{ scale: 1 }}
                     whileTap={{ scale: 0.98 }}
+                    transition={{ duration: 0.1 }}
                   >
                     Join for Free
                     <svg
-                      className="w-5 h-5 ml-3 transition-all duration-300 group-hover:translate-x-1"
+                      className="w-5 h-5 ml-3 transition-all duration-200 group-hover:translate-x-1"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -355,7 +357,7 @@ const arrowButtonVariants: Variants = {
                     Already a member?{" "}
                     <a
                       href="/login"
-                      className="font-bold text-blue-600 transition-all duration-200 hover:text-blue-800 hover:underline"
+                      className="font-bold text-blue-600 transition-all duration-200 hover:text-blue-800"
                     >
                       Sign In
                     </a>
@@ -374,9 +376,9 @@ const arrowButtonVariants: Variants = {
                     src="https://cdn.rareblocks.xyz/collection/celebration/images/hero/1/hero-img.png"
                     alt="People learning and collaborating online"
                     loading="lazy"
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
                   />
                 </div>
               </motion.div>
@@ -408,10 +410,10 @@ const arrowButtonVariants: Variants = {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{
-                    delay: 0.3,
+                    delay: 0.15,
                     type: "spring",
-                    stiffness: 200,
-                    damping: 10
+                    stiffness: 300,
+                    damping: 15
                   }}
                 />
               </span>
@@ -424,10 +426,10 @@ const arrowButtonVariants: Variants = {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{
-                    delay: 0.5,
+                    delay: 0.25,
                     type: "spring",
-                    stiffness: 200,
-                    damping: 10
+                    stiffness: 300,
+                    damping: 15
                   }}
                 />
               </span>
@@ -473,15 +475,15 @@ const arrowButtonVariants: Variants = {
                         className="object-cover w-full h-48"
                         src={course.image}
                         alt={course.title}
-                        whileHover={{ scale: 1 }}
-                        transition={{ duration: 0.3 }}
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ duration: 0.2 }}
                       />
                       {course.tag && (
                         <motion.span
                           className={`absolute px-3 py-1 text-xs font-bold text-white ${course.tag.color} rounded top-3 left-3`}
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          transition={{ delay: 0.2 + i * 0.05 }}
+                          transition={{ delay: 0.1 + i * 0.03 }}
                         >
                           {course.tag.text}
                         </motion.span>
@@ -502,8 +504,8 @@ const arrowButtonVariants: Variants = {
                         <span className="text-lg font-bold text-gray-900">₹{course.price.toFixed(2)}</span>
                         <motion.button
                           className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 cursor-pointer"
-                          whileHover={{ scale: 1 }}
                           whileTap={{ scale: 0.98 }}
+                          transition={{ duration: 0.1 }}
                         >
                           Enroll Now
                         </motion.button>
@@ -534,12 +536,9 @@ const arrowButtonVariants: Variants = {
           >
             <motion.button
               className="px-8 py-3 text-base font-medium text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
-              whileHover="hover"
-              whileTap="tap"
-              variants={{
-                hover: { scale: 1, backgroundColor: "#2563eb" },
-                tap: { scale: 0.98 }
-              }}
+              whileHover={{ scale: 1.03, backgroundColor: "#2563eb" }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.1 }}
             >
               Browse All Courses
             </motion.button>

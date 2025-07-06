@@ -1,1 +1,1 @@
-export const BASE_URL = process.env.BACKEND_URL;
+export const BASE_URL = "https://6651-103-242-199-9.ngrok-free.app";

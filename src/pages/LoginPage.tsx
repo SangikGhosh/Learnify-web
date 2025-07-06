@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { BASE_URL } from "../utils/config";
 
 // Animation variants
 const fadeInVariants: Variants = {

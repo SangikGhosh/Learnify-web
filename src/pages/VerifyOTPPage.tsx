@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, type Variants } from "framer-motion";
 import { ArrowLeft, Mail } from 'lucide-react';
+import { BASE_URL } from "../utils/config";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Animation variants
 const fadeInVariants: Variants = {
@@ -21,9 +25,14 @@ const buttonTapVariants = {
 
 const VerifyOTPPage: React.FC = () => {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
-  const [email] = useState("user@example.com");
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get email from location state or default to empty string
+  const [email] = useState(location.state?.email || "");
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
@@ -79,18 +88,84 @@ const VerifyOTPPage: React.FC = () => {
     inputRefs.current[lastFilledIndex]?.focus();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const fullOtp = otp.join("");
-    console.log("OTP submitted:", fullOtp);
-    // Here you would typically verify the OTP with your backend
+    
+    if (fullOtp.length !== 6) {
+      toast.error("Please enter a 6-digit OTP");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          otp: fullOtp
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'OTP verification failed');
+      }
+
+      toast.success("Account verified successfully!");
+      
+      // Store token in localStorage or context
+      localStorage.setItem('token', data.token);
+      
+      // Redirect to dashboard or home page after 2 seconds
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || 'An error occurred during verification');
+      } else {
+        toast.error('An error occurred during verification');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleResendCode = () => {
-    // Reset timer and resend OTP logic
-    setTimeLeft(600);
-    console.log("Resending OTP...");
-    // Add your resend OTP logic here
+  const handleResendCode = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/auth/resend-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to resend OTP');
+      }
+
+      // Reset timer and OTP fields
+      setTimeLeft(600);
+      setOtp(Array(6).fill(""));
+      inputRefs.current[0]?.focus();
+      
+      toast.success("New OTP sent to your email!");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || 'Failed to resend OTP');
+      } else {
+        toast.error('Failed to resend OTP');
+      }
+    }
   };
 
   const isOtpComplete = otp.join("").length === 6;
@@ -102,6 +177,21 @@ const VerifyOTPPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-center items-center px-4 sm:px-6 py-8 sm:py-12">
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        toastClassName="rounded-lg shadow-lg"
+        progressClassName="bg-yellow-400"
+      />
+      
       <motion.div 
         className="max-w-md w-full"
         initial="hidden"
@@ -124,10 +214,10 @@ const VerifyOTPPage: React.FC = () => {
                 className="flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-900 rounded-lg hover:bg-black hover:text-white transition-colors text-sm sm:text-base cursor-pointer"
                 variants={buttonTapVariants}
                 whileTap="tap"
-                onClick={() => window.location.href = "/login"}
+                onClick={() => navigate("/")}
               >
                 <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 mr-1 -mt-0.5 hover:text-white" />
-                Back to Login
+                Back to Home
               </motion.button>
             </div>
 
@@ -178,16 +268,26 @@ const VerifyOTPPage: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-100 text-sm sm:text-base md:text-lg font-medium cursor-pointer ${
-                  isOtpComplete
-                    ? 'bg-black text-white hover:bg-yellow-400 hover:text-black focus:bg-yellow-500 focus:text-black'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-100 text-sm sm:text-base md:text-lg font-medium ${
+                  isOtpComplete && !isSubmitting
+                    ? 'bg-black text-white'
+                    : 'bg-black text-white cursor-not-allowed'
                 }`}
                 variants={buttonTapVariants}
-                whileTap={isOtpComplete ? "tap" : undefined}
-                disabled={!isOtpComplete}
+                whileTap={isOtpComplete && !isSubmitting ? "tap" : undefined}
+                disabled={!isOtpComplete || isSubmitting}
               >
-                Verify OTP
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Verifying...
+                  </div>
+                ) : (
+                  'Verify OTP'
+                )}
               </motion.button>
 
               <div className="text-center space-y-3">
@@ -195,7 +295,9 @@ const VerifyOTPPage: React.FC = () => {
                   Didn't receive the code?{" "}
                   <button 
                     type="button" 
-                    className="font-semibold text-blue-600 hover:text-blue-700 focus:outline-none"
+                    className={`font-semibold ${
+                      timeLeft > 0 ? 'text-gray-400' : 'text-blue-600 hover:text-blue-700'
+                    } focus:outline-none`}
                     onClick={handleResendCode}
                     disabled={timeLeft > 0}
                   >
@@ -204,7 +306,11 @@ const VerifyOTPPage: React.FC = () => {
                 </p>
                 
                 <p className="text-xs sm:text-sm text-gray-500">
-                  The code will expire in <span className="font-bold">{formattedTime}</span>
+                  {timeLeft > 0 ? (
+                    <>The code will expire in <span className="font-bold">{formattedTime}</span></>
+                  ) : (
+                    "The code has expired. Please request a new one."
+                  )}
                 </p>
               </div>
             </motion.form>

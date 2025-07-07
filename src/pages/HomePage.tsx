@@ -1,5 +1,7 @@
 import { motion, type Variants } from 'framer-motion';
 import React, { useRef, useState } from 'react';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { useAuth } from '../hooks/useAuth';
 
 interface Course {
   id: number;
@@ -15,7 +17,79 @@ interface Course {
   };
 }
 
+const Casarole: React.FC = () => {
+  const images = [
+    '/src/assets/Images/LearniFy Images/1.png',
+    '/src/assets/Images/LearniFy Images/2.png',
+    '/src/assets/Images/LearniFy Images/3.png',
+    '/src/assets/Images/LearniFy Images/4.png',
+    '/src/assets/Images/LearniFy Images/5.png',
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const nextSlide = React.useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [isTransitioning, images.length]);
+
+  const prevSlide = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
+
+  React.useEffect(() => {
+    const interval = setInterval(nextSlide, 10000);
+    return () => clearInterval(interval);
+  }, [currentIndex, isTransitioning, nextSlide]);
+
+  return (
+    <div className="relative w-full flex justify-center items-start pt-16 lg:pt-20">
+      <div className="relative w-full md:w-4/5 lg:w-2/3 aspect-[16/8] overflow-hidden bg-black">
+        {/* Main Image */}
+        <div className="relative w-full h-full">
+          {images.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`Slide ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                currentIndex === index ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Navigation Arrows */}
+        <button
+          onClick={prevSlide}
+          className="absolute left-1 md:left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 sm:p-3 rounded-full hover:bg-black/75 transition-all z-10"
+          aria-label="Previous image"
+        >
+          <FiChevronLeft className='h-4 md:h-6 w-auto' />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="absolute right-1 md:right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 sm:p-3 rounded-full hover:bg-black/75 transition-all z-10"
+          aria-label="Next image"
+        >
+          <FiChevronRight className='h-4 md:h-6 w-auto' />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const HomePage: React.FC = () => {
+  const isLoggedIn = useAuth();
   const [courses] = useState<Course[]>([
     {
       id: 1,
@@ -282,110 +356,114 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="bg-white">
-      {/* Hero Section */}
-      <div className="min-h-screen flex items-center pt-12">
-        <section className="w-full bg-white bg-opacity-30 py-8 sm:py-12 lg:py-16 xl:py-20">
-          <div className="px-5 mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <motion.div
-              className="grid items-center grid-cols-1 gap-10 md:gap-16 lg:grid-cols-2 lg:gap-20"
-              initial="hidden"
-              animate="visible"
-              variants={containerVariants}
-            >
-              {/* Text Content */}
-              <div className="text-center lg:text-left">
-                <motion.p
-                  className="text-sm sm:text-base font-bold tracking-widest uppercase"
-                  variants={itemVariants}
-                >
-                  <span className="bg-gradient-to-r from-blue-700 to-purple-600 bg-clip-text text-transparent">
-                    A SOCIAL NETWORK FOR MODERN LEARNERS
-                  </span>
-                </motion.p>
-
-                <motion.h1
-                  className="mt-5 text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:mt-8 lg:text-7xl xl:text-[5rem] 2xl:text-[5.5rem]"
-                  variants={itemVariants}
-                >
-                  <span className="block">Connect & Learn From</span>
-                  <motion.span
-                    className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600"
-                    variants={gradientTextVariants}
-                  >
-                    Top Experts
-                  </motion.span>
-                </motion.h1>
-
-                <motion.p
-                  className="mt-5 text-lg font-medium text-gray-700 sm:text-xl md:text-xl lg:mt-8"
-                  variants={itemVariants}
-                >
-                  Accelerate your career growth with personalized mentorship from industry leaders.
-                </motion.p>
-
-                <motion.div
-                  className="flex flex-col items-center mt-8 space-y-4 lg:items-start lg:mt-12"
-                  variants={itemVariants}
-                >
-                  <motion.a
-                    href="/register"
-                    className="relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white hover:text-black transition-all duration-300 bg-black rounded-xl hover:bg-yellow-400 focus:bg-yellow-400 focus:text-black group"
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ duration: 0.1 }}
-                  >
-                    Join for Free
-                    <svg
-                      className="w-5 h-5 ml-3 transition-all duration-200 group-hover:translate-x-1"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
-                  </motion.a>
-
+      {isLoggedIn ? (
+        <Casarole />
+      ) : (
+        /* Hero Section */
+        <div className="min-h-screen flex items-center pt-12">
+          <section className="w-full bg-white bg-opacity-30 py-8 sm:py-12 lg:py-16 xl:py-20">
+            <div className="px-5 mx-auto max-w-7xl sm:px-6 lg:px-8">
+              <motion.div
+                className="grid items-center grid-cols-1 gap-10 md:gap-16 lg:grid-cols-2 lg:gap-20"
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+              >
+                {/* Text Content */}
+                <div className="text-center lg:text-left">
                   <motion.p
-                    className="text-sm font-medium text-gray-600 sm:text-base"
+                    className="text-sm sm:text-base font-bold tracking-widest uppercase"
                     variants={itemVariants}
                   >
-                    Already a member?{" "}
-                    <a
-                      href="/login"
-                      className="font-bold text-blue-600 transition-all duration-200 hover:text-blue-800"
-                    >
-                      Sign In
-                    </a>
+                    <span className="bg-gradient-to-r from-blue-700 to-purple-600 bg-clip-text text-transparent">
+                      A SOCIAL NETWORK FOR MODERN LEARNERS
+                    </span>
                   </motion.p>
-                </motion.div>
-              </div>
 
-              {/* Image */}
-              <motion.div
-                className="relative flex justify-center lg:justify-end"
-                variants={imageVariants}
-              >
-                <div className="w-full max-w-md lg:max-w-none">
-                  <motion.img
-                    className="w-full h-auto transition-all"
-                    src="https://cdn.rareblocks.xyz/collection/celebration/images/hero/1/hero-img.png"
-                    alt="People learning and collaborating online"
-                    loading="lazy"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.2 }}
-                  />
+                  <motion.h1
+                    className="mt-5 text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:mt-8 lg:text-7xl xl:text-[5rem] 2xl:text-[5.5rem]"
+                    variants={itemVariants}
+                  >
+                    <span className="block">Connect & Learn From</span>
+                    <motion.span
+                      className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600"
+                      variants={gradientTextVariants}
+                    >
+                      Top Experts
+                    </motion.span>
+                  </motion.h1>
+
+                  <motion.p
+                    className="mt-5 text-lg font-medium text-gray-700 sm:text-xl md:text-xl lg:mt-8"
+                    variants={itemVariants}
+                  >
+                    Accelerate your career growth with personalized mentorship from industry leaders.
+                  </motion.p>
+
+                  <motion.div
+                    className="flex flex-col items-center mt-8 space-y-4 lg:items-start lg:mt-12"
+                    variants={itemVariants}
+                  >
+                    <motion.a
+                      href="/register"
+                      className="relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white hover:text-black transition-all duration-300 bg-black rounded-xl hover:bg-yellow-400 focus:bg-yellow-400 focus:text-black group"
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ duration: 0.1 }}
+                    >
+                      Join for Free
+                      <svg
+                        className="w-5 h-5 ml-3 transition-all duration-200 group-hover:translate-x-1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </motion.a>
+
+                    <motion.p
+                      className="text-sm font-medium text-gray-600 sm:text-base"
+                      variants={itemVariants}
+                    >
+                      Already a member?{" "}
+                      <a
+                        href="/login"
+                        className="font-bold text-blue-600 transition-all duration-200 hover:text-blue-800"
+                      >
+                        Sign In
+                      </a>
+                    </motion.p>
+                  </motion.div>
                 </div>
+
+                {/* Image */}
+                <motion.div
+                  className="relative flex justify-center lg:justify-end"
+                  variants={imageVariants}
+                >
+                  <div className="w-full max-w-md lg:max-w-none">
+                    <motion.img
+                      className="w-full h-auto transition-all"
+                      src="https://cdn.rareblocks.xyz/collection/celebration/images/hero/1/hero-img.png"
+                      alt="People learning and collaborating online"
+                      loading="lazy"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.2 }}
+                    />
+                  </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
-          </div>
-        </section>
-      </div>
+            </div>
+          </section>
+        </div>
+      )}
 
       {/* Community Section - Featured Courses */}
       <motion.section
@@ -398,7 +476,7 @@ const HomePage: React.FC = () => {
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="text-center">
             <motion.h1
-              className="text-3xl font-bold text-gray-900 sm:text-4xl lg:text-5xl"
+              className="text-3xl font-bold text-black sm:text-5xl lg:text-7xl"
               variants={headingVariants}
             >
               Discover Top Courses

@@ -1,17 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, School, ChevronDown, ChevronUp } from "lucide-react";
+import { GraduationCap, School, ChevronDown, ChevronUp, X } from "lucide-react";
 import ExploreDropdown from "./ExploreDropdown";
 import Searchbar from "./SearchBar";
+import { useAuth } from "../hooks/useAuth";
+import { imageMap } from "./AvatarData";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isJoinHovered, setIsJoinHovered] = useState(false);
   const [isOthersOpen, setIsOthersOpen] = useState(false);
-  const [visibleItems, setVisibleItems] = useState<number>(3); // Start with all items visible
+  const [visibleItems, setVisibleItems] = useState<number>(3);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const [username, setUsername] = useState<string>("");
+  const [userInitial, setUserInitial] = useState<string>("");
+  const isLoggedIn = useAuth();
 
   const joinButtonRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
@@ -19,39 +23,56 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 10;
-      setIsScrolled(scrolled);
-
       if (scrolled && window.innerWidth < 1024) {
         setIsSearchOpen(false);
-        setIsMenuOpen(false);
       }
     };
 
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
       
-      // Calculate how many items can fit based on window width
       if (window.innerWidth >= 1300) {
-        setVisibleItems(3); // Show all items
+        setVisibleItems(3);
       } else if (window.innerWidth >= 1200) {
-        setVisibleItems(2); // Show 2 items
+        setVisibleItems(2);
       } else if (window.innerWidth >= 1100) {
-        setVisibleItems(1); // Show 1 item
+        setVisibleItems(1);
       } else {
-        setVisibleItems(0); // Mobile view
+        setVisibleItems(0);
       }
     };
+
+    const fetchUsername = async () => {
+      if (isLoggedIn) {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch('{{BASE_URL}}/api/common/get-username', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const data = await response.json();
+          if (data.username) {
+            setUsername(data.username);
+            setUserInitial(data.username.charAt(0).toUpperCase());
+          }
+        } catch (error) {
+          console.error('Error fetching username:', error);
+        }
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleResize);
+    fetchUsername();
 
-    // Initial calculation
     handleResize();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [isLoggedIn]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -69,22 +90,22 @@ const Navbar: React.FC = () => {
 
   const menuVariants = {
     open: {
+      x: 0,
       opacity: 1,
-      height: "auto",
       transition: {
-        staggerChildren: 0.05,
-        delayChildren: 0.1,
-        duration: 0.2
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 30
       }
     },
     closed: {
+      x: "-100%",
       opacity: 0,
-      height: 0,
       transition: {
-        staggerChildren: 0.05,
-        staggerDirection: -1,
-        when: "afterChildren",
-        duration: 0.2
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 30,
+        delay: 0.1
       }
     }
   };
@@ -146,21 +167,18 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Navigation items that might be hidden under "Others"
   const navItems = [
-    { name: "Home", href: "/" },
+    { name: "Home", href: "/home" },
     { name: "Teach on LearniFy", href: "/teach-on-learnify" },
     { name: "View Cart", href: "#" }
   ];
 
-  // Items to show directly
   const visibleNavItems = navItems.slice(0, visibleItems);
-  // Items to hide under "Others"
   const hiddenNavItems = navItems.slice(visibleItems);
 
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white bg-opacity-90 shadow-lg" : "bg-white bg-opacity-30"}`}
+      className={`fixed w-full z-50 transition-all duration-300 bg-white bg-opacity-30`}
     >
       <div className="px-4 mx-auto sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -173,7 +191,7 @@ const Navbar: React.FC = () => {
             }}
             transition={{ duration: 0.2 }}
           >
-            <a href="/" title="" className="flex">
+            <a href="/home" title="" className="flex">
               <img
                 className="w-auto h-12"
                 src="../src/assets/images/Learnify.png"
@@ -211,20 +229,7 @@ const Navbar: React.FC = () => {
               whileTap={{ scale: 0.95 }}
             >
               {isMenuOpen ? (
-                <svg
-                  className="w-6 h-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X className="w-6 h-6" />
               ) : (
                 <svg
                   className="w-6 h-6"
@@ -265,7 +270,6 @@ const Navbar: React.FC = () => {
               </a>
             ))}
 
-            {/* Others dropdown only if there are hidden items */}
             {hiddenNavItems.length > 0 && (
               <div
                 className="relative"
@@ -312,128 +316,171 @@ const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Join Now Button with Dropdown */}
-          <div
-            className="hidden lg:block relative"
-            ref={joinButtonRef}
-            onMouseEnter={() => setIsJoinHovered(true)}
-            onMouseLeave={() => setIsJoinHovered(false)}
-          >
-            <motion.p
-              className="cursor-pointer inline-flex items-center justify-center px-5 py-2.5 text-base duration-200 hover:bg-yellow-300 hover:text-black focus:text-black focus:bg-yellow-300 font-semibold text-white bg-black rounded-full"
-              whileHover={{
-                backgroundColor: "#FACC15",
-                color: "#000000",
-                scale: 1.02
-              }}
-              whileTap={{ scale: 0.95 }}
+          {/* Join Now Button or User Profile */}
+          {!isLoggedIn ? (
+            <div
+              className="hidden lg:block relative"
+              ref={joinButtonRef}
+              onMouseEnter={() => setIsJoinHovered(true)}
+              onMouseLeave={() => setIsJoinHovered(false)}
             >
-              Join Now
-            </motion.p>
+              <motion.p
+                className="cursor-pointer inline-flex items-center justify-center px-5 py-2.5 text-base duration-200 hover:bg-yellow-300 hover:text-black focus:text-black focus:bg-yellow-300 font-semibold text-white bg-black rounded-full"
+                whileHover={{
+                  backgroundColor: "#FACC15",
+                  color: "#000000",
+                  scale: 1.02
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Join Now
+              </motion.p>
 
-            <AnimatePresence>
-              {isJoinHovered && (
-                <motion.div
-                  className="absolute right-0 z-50 mt-2 w-64 origin-top-right"
-                  initial="closed"
-                  animate="open"
-                  exit="closed"
-                  variants={joinDropdownVariants}
-                >
-                  <div className="rounded-xl shadow-lg bg-white overflow-hidden border border-gray-200">
-                    <motion.a
-                      href="/register"
-                      className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
-                      whileHover={{ x: 4 }}
-                    >
-                      <GraduationCap className="w-5 h-5 mr-3 text-yellow-500" />
-                      <div>
-                        <p className="font-medium text-gray-900">Join as Student</p>
-                        <p className="text-sm text-gray-500">Start learning today</p>
-                      </div>
-                    </motion.a>
+              <AnimatePresence>
+                {isJoinHovered && (
+                  <motion.div
+                    className="absolute right-0 z-50 mt-2 w-64 origin-top-right"
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                    variants={joinDropdownVariants}
+                  >
+                    <div className="rounded-xl shadow-lg bg-white overflow-hidden border border-gray-200">
+                      <motion.a
+                        href="/register"
+                        className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
+                        whileHover={{ x: 4 }}
+                      >
+                        <GraduationCap className="w-5 h-5 mr-3 text-yellow-500" />
+                        <div>
+                          <p className="font-medium text-gray-900">Join as Student</p>
+                          <p className="text-sm text-gray-500">Start learning today</p>
+                        </div>
+                      </motion.a>
 
-                    <div className="border-t border-gray-200" />
+                      <div className="border-t border-gray-200" />
 
-                    <motion.a
-                      href="/instructor-register"
-                      className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
-                      whileHover={{ x: 4 }}
-                    >
-                      <School className="w-5 h-5 mr-3 text-yellow-500" />
-                      <div>
-                        <p className="font-medium text-gray-900">Join as Instructor</p>
-                        <p className="text-sm text-gray-500">Share your knowledge</p>
-                      </div>
-                    </motion.a>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                      <motion.a
+                        href="/instructor-register"
+                        className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
+                        whileHover={{ x: 4 }}
+                      >
+                        <School className="w-5 h-5 mr-3 text-yellow-500" />
+                        <div>
+                          <p className="font-medium text-gray-900">Join as Instructor</p>
+                          <p className="text-sm text-gray-500">Share your knowledge</p>
+                        </div>
+                      </motion.a>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="hidden lg:flex items-center">
+              <div className="w-14 h-14 rounded-full overflow-hidden">
+                <img 
+                  src={imageMap[userInitial as keyof typeof imageMap] || imageMap['A']} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="ml-2 font-medium">{username}</span>
+            </div>
+          )}
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Full Screen Overlay */}
         <AnimatePresence>
           {isMenuOpen && (
-            <motion.div
-              className="lg:hidden"
-              initial="closed"
-              animate="open"
-              exit="closed"
-              variants={menuVariants}
-            >
-              <div className="pt-2 pb-4 space-y-2">
-                <motion.a
-                  href="/"
-                  className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
-                  onClick={() => setIsMenuOpen(false)}
-                  variants={menuItemVariants}
-                >
-                  Home
-                </motion.a>
-                <motion.a
-                  href="/teach-on-learnify"
-                  className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
-                  onClick={() => setIsMenuOpen(false)}
-                  variants={menuItemVariants}
-                >
-                  Teach on LearniFy
-                </motion.a>
-                <motion.a
-                  href="#"
-                  className="block px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
-                  onClick={() => setIsMenuOpen(false)}
-                  variants={menuItemVariants}
-                >
-                  View Cart
-                </motion.a>
-                <motion.a
-                  href="/register"
-                  className="flex px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
-                  onClick={() => setIsMenuOpen(false)}
-                  variants={menuItemVariants}
-                >
-                  <GraduationCap className="w-6 h-6 mt-2 mr-3 text-yellow-500" />
-                  <div>
-                    <p className="font-medium text-gray-900">Join as Student</p>
-                    <p className="text-sm text-gray-500">Start learning today</p>
+            <>
+              <motion.div
+                className="fixed inset-0 bg-opacity-50 z-40 lg:hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={toggleMenu}
+              />
+              
+              <motion.div
+                className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white z-50 shadow-xl lg:hidden"
+                initial="closed"
+                animate="open"
+                exit="closed"
+                variants={menuVariants}
+              >
+                <div className="flex flex-col h-full p-4">
+                  {isLoggedIn && (
+                    <div className="flex items-center p-4 border-b border-gray-200">
+                      <div className="w-18 h-18 rounded-full overflow-hidden">
+                        <img 
+                          src={imageMap[userInitial as keyof typeof imageMap] || imageMap['A']} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="ml-3 text-lg font-semibold">{username}</span>
+                    </div>
+                  )}
+
+                  <div className="flex-grow pt-4 pb-4 space-y-2 overflow-y-auto">
+                    <motion.a
+                      href="/home"
+                      className="block px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                      variants={menuItemVariants}
+                    >
+                      Home
+                    </motion.a>
+                    <motion.a
+                      href="/teach-on-learnify"
+                      className="block px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                      variants={menuItemVariants}
+                    >
+                      Teach on LearniFy
+                    </motion.a>
+                    <motion.a
+                      href="#"
+                      className="block px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                      variants={menuItemVariants}
+                    >
+                      View Cart
+                    </motion.a>
+                    
+                    {!isLoggedIn && (
+                      <>
+                        <motion.a
+                          href="/register"
+                          className="flex items-center px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <GraduationCap className="w-6 h-6 mr-3 text-yellow-500" />
+                          <div>
+                            <p className="font-medium text-gray-900">Join as Student</p>
+                            <p className="text-sm text-gray-500">Start learning today</p>
+                          </div>
+                        </motion.a>
+                        <motion.a
+                          href="/instructor-register"
+                          className="flex items-center px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <School className="w-5 h-5 mr-3 text-yellow-500" />
+                          <div>
+                            <p className="font-medium text-gray-900">Join as Instructor</p>
+                            <p className="text-sm text-gray-500">Share your knowledge</p>
+                          </div>
+                        </motion.a>
+                      </>
+                    )}
                   </div>
-                </motion.a>
-                <motion.a
-                  href="/instructor-register"
-                  className="flex px-3 py-2 text-base font-medium text-black rounded-md hover:bg-gray-50"
-                  onClick={() => setIsMenuOpen(false)}
-                  variants={menuItemVariants}
-                >
-                  <School className="w-5 h-5 mr-3 mt-2 text-yellow-500" />
-                  <div>
-                    <p className="font-medium text-gray-900">Join as Instructor</p>
-                    <p className="text-sm text-gray-500">Share your knowledge</p>
-                  </div>
-                </motion.a>
-              </div>
-            </motion.div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>

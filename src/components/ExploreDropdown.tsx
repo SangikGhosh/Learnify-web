@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useState } from 'react';
 
 interface SubCategory {
@@ -10,7 +11,7 @@ interface Category {
   subcategories?: SubCategory[];
 }
 
-const categories: Category[] = [
+export const categories: Category[] = [
   {
     name: 'Development',
     subcategories: [

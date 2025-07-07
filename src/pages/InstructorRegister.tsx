@@ -52,7 +52,7 @@ const InstructorRegister: React.FC = () => {
                 className="flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-900 rounded-lg hover:bg-black hover:text-white transition-colors text-sm sm:text-base cursor-pointer"
                 variants={buttonTapVariants}
                 whileTap="tap"
-                onClick={() => window.location.href = "/"}
+                onClick={() => window.location.href = "/home"}
               >
                 <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 mr-1 -mt-0.5 hover:text-white" />
                 Back to Home

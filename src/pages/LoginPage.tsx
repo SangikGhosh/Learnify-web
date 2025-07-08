@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { BASE_URL } from "../utils/config";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
+
 // Animation variants
 const fadeInVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -20,14 +25,133 @@ const buttonTapVariants = {
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+  const [errors, setErrors] = useState({
+    email: "",
+    password: ""
+  });
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user types
+    setErrors(prev => ({
+      ...prev,
+      [name]: ""
+    }));
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      email: "",
+      password: ""
+    };
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+      valid = false;
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+      valid = false;
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+      valid = false;
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters long";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Store token and user data
+      if (rememberMe) {
+        localStorage.setItem('token', data.token);
+      } else {
+        sessionStorage.setItem('token', data.token);
+      }
+
+      toast.success(data.status || "Login successful");
+      
+      // Redirect based on role
+      setTimeout(() => {
+        if (data.role === "INSTRUCTOR") {
+          navigate("/instructor-dashboard");
+        } else {
+          navigate("/home");
+        }
+      }, 1500);
+
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || 'An error occurred during login');
+      } else {
+        toast.error('An error occurred during login');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-center items-center px-4 sm:px-6 py-8 sm:py-12">
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        toastClassName="rounded-lg shadow-lg"
+        progressClassName="bg-yellow-400"
+      />
       <motion.div 
         className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16"
         initial="hidden"
@@ -51,7 +175,7 @@ const LoginPage: React.FC = () => {
                 className="flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-900 rounded-lg hover:bg-black hover:text-white transition-colors text-sm sm:text-base cursor-pointer"
                 variants={buttonTapVariants}
                 whileTap="tap"
-                onClick={() => window.location.href = "/home"}
+                onClick={() => navigate("/home")}
               >
                 <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 mr-1 -mt-0.5 hover:text-white" />
                 Back to Home
@@ -90,6 +214,7 @@ const LoginPage: React.FC = () => {
             <motion.form 
               className="space-y-4 sm:space-y-4 md:space-y-5"
               variants={fadeInVariants}
+              onSubmit={handleSubmit}
             >
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -97,10 +222,16 @@ const LoginPage: React.FC = () => {
                 </div>
                 <input
                   type="email"
+                  name="email"
                   placeholder="Email address"
-                  className="w-full pl-12 pr-4 py-3 sm:px-5 sm:py-2.5 sm:pl-12 border border-gray-400 focus:border-black rounded-lg sm:rounded-xl focus:outline-none focus:ring focus:ring-black  text-sm sm:text-base md:text-lg"
+                  className={`w-full pl-12 pr-4 py-3 sm:px-5 sm:py-2.5 sm:pl-12 border ${errors.email ? 'border-red-500' : 'border-gray-400'} focus:border-black rounded-lg sm:rounded-xl focus:outline-none focus:ring focus:ring-black text-sm sm:text-base md:text-lg`}
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </div>
+              {errors.email && (
+                <p className="-mt-3 text-sm text-red-500 text-left">{errors.email}</p>
+              )}
               
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -108,10 +239,11 @@ const LoginPage: React.FC = () => {
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create Password (min. 8 characters)"
-                  className="w-full pl-12 pr-4 py-3 sm:px-5 sm:py-2.5 sm:pl-12 border border-gray-400 focus:border-black rounded-lg sm:rounded-xl focus:outline-none focus:ring focus:ring-black text-sm sm:text-base md:text-lg"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  name="password"
+                  placeholder="Enter your password"
+                  className={`w-full pl-12 pr-4 py-3 sm:px-5 sm:py-2.5 sm:pl-12 border ${errors.password ? 'border-red-500' : 'border-gray-400'} focus:border-black rounded-lg sm:rounded-xl focus:outline-none focus:ring focus:ring-black text-sm sm:text-base md:text-lg`}
+                  value={formData.password}
+                  onChange={handleChange}
                 />
                 <button
                   type="button"
@@ -125,27 +257,43 @@ const LoginPage: React.FC = () => {
                   )}
                 </button>
               </div>
+              {errors.password && (
+                <p className="-mt-3 text-sm text-red-500 text-left">{errors.password}</p>
+              )}
 
               <div className="flex justify-between items-center text-xs sm:text-sm md:text-base">
                 <label className="flex items-center gap-1.5 sm:gap-2 cursor-pointer z-40">
                   <input
                     type="checkbox"
                     className="w-4 h-4 accent-black cursor-pointer"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                   />
                   Remember me
                 </label>
-                <a href="#" className="text-red-500 font-semibold hover:text-red-600 transition-colors">
+                <a href="/forgot-password" className="text-red-500 font-semibold hover:text-red-600 transition-colors">
                   Forgot Password?
                 </a>
               </div>
 
               <motion.button
                 type="submit"
-                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 focus:text-black hover:text-black transition-all duration-100 text-sm sm:text-base md:text-lg font-medium cursor-pointer"
+                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 focus:text-black hover:text-black transition-all duration-100 text-sm sm:text-base md:text-lg font-medium disabled:opacity-70 disabled:cursor-not-allowed"
                 variants={buttonTapVariants}
-                whileTap="tap"
+                whileTap={isSubmitting ? {} : "tap"}
+                disabled={isSubmitting}
               >
-                Login
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Logging in...
+                  </div>
+                ) : (
+                  'Login'
+                )}
               </motion.button>
 
               <p className="text-center text-xs sm:text-sm md:text-base">
@@ -165,7 +313,7 @@ const LoginPage: React.FC = () => {
                 className="mt-5 w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 transition-all duration-50 text-sm sm:text-base md:text-lg font-medium cursor-pointer"
                 variants={buttonTapVariants}
                 whileTap="tap"
-                onClick={() => window.location.href = "/instructor-login"}
+                onClick={() => navigate("/instructor-login")}
               >
                 Login as Instructor
               </motion.button>
@@ -242,7 +390,7 @@ const LoginPage: React.FC = () => {
               className="cursor-pointer px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm sm:text-base relative overflow-hidden group"
               variants={buttonTapVariants}
               whileTap="tap"
-              onClick={() => window.location.href = "/instructor-login"}
+              onClick={() => navigate("/instructor-login")}
             >
               <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">

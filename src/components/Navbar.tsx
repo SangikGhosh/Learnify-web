@@ -5,6 +5,7 @@ import ExploreDropdown from "./ExploreDropdown";
 import Searchbar from "./SearchBar";
 import { useAuth } from "../hooks/useAuth";
 import { imageMap } from "./AvatarData";
+import { BASE_URL } from "../utils/config";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,7 +31,7 @@ const Navbar: React.FC = () => {
 
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
-      
+
       if (window.innerWidth >= 1300) {
         setVisibleItems(3);
       } else if (window.innerWidth >= 1200) {
@@ -46,14 +47,35 @@ const Navbar: React.FC = () => {
       if (isLoggedIn) {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch('{{BASE_URL}}/api/common/get-username', {
+
+          if (!token) {
+            throw new Error('No token found');
+          }
+
+          const response = await fetch(`${BASE_URL}/api/common/get-username`, {
+            method: 'GET',
             headers: {
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
             }
+            // Don't use credentials: 'include' unless you need cookies
           });
+
+          if (response.status === 401) {
+            // Handle unauthorized (token expired/invalid)
+            console.error('Unauthorized - possibly expired token');
+            // You might want to redirect to login here
+            return;
+          }
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
           const data = await response.json();
           if (data.username) {
             setUsername(data.username);
+            console.log('Username fetched:', data.username);
             setUserInitial(data.username.charAt(0).toUpperCase());
           }
         } catch (error) {
@@ -61,6 +83,7 @@ const Navbar: React.FC = () => {
         }
       }
     };
+
 
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleResize);
@@ -224,7 +247,7 @@ const Navbar: React.FC = () => {
 
             <motion.button
               type="button"
-              className="inline-flex p-2 text-black transition-all duration-200 rounded-md focus:bg-gray-100 hover:bg-gray-100"
+              className="inline-flex p-2 text-black transition-all duration-200 rounded-md z-50"
               onClick={toggleMenu}
               whileTap={{ scale: 0.95 }}
             >
@@ -329,7 +352,7 @@ const Navbar: React.FC = () => {
                 whileHover={{
                   backgroundColor: "#FACC15",
                   color: "#000000",
-                  scale: 1.02
+                  scale: 1
                 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -379,9 +402,9 @@ const Navbar: React.FC = () => {
           ) : (
             <div className="hidden lg:flex items-center">
               <div className="w-14 h-14 rounded-full overflow-hidden">
-                <img 
-                  src={imageMap[userInitial as keyof typeof imageMap] || imageMap['A']} 
-                  alt="Profile" 
+                <img
+                  src={imageMap[userInitial as keyof typeof imageMap] || imageMap['A']}
+                  alt="Profile"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -395,13 +418,13 @@ const Navbar: React.FC = () => {
           {isMenuOpen && (
             <>
               <motion.div
-                className="fixed inset-0 bg-opacity-50 z-40 lg:hidden"
+                className="fixed inset-0 backdrop-blur-sm z-40 lg:hidden"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={toggleMenu}
               />
-              
+
               <motion.div
                 className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white z-50 shadow-xl lg:hidden"
                 initial="closed"
@@ -413,9 +436,9 @@ const Navbar: React.FC = () => {
                   {isLoggedIn && (
                     <div className="flex items-center p-4 border-b border-gray-200">
                       <div className="w-18 h-18 rounded-full overflow-hidden">
-                        <img 
-                          src={imageMap[userInitial as keyof typeof imageMap] || imageMap['A']} 
-                          alt="Profile" 
+                        <img
+                          src={imageMap[userInitial as keyof typeof imageMap] || imageMap['A']}
+                          alt="Profile"
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -448,7 +471,7 @@ const Navbar: React.FC = () => {
                     >
                       View Cart
                     </motion.a>
-                    
+
                     {!isLoggedIn && (
                       <>
                         <motion.a

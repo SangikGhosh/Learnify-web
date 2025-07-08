@@ -50,7 +50,7 @@ const Casarole: React.FC = () => {
 
   return (
     <div className="relative w-full flex justify-center items-start pt-16 lg:pt-20">
-      <div className="relative w-full md:w-4/5 lg:w-2/3 aspect-[16/8] overflow-hidden bg-black">
+      <div className="relative w-full md:w-4/5 lg:w-2/3 aspect-[16/8] overflow-hidden bg-white">
         {/* Main Image */}
         <div className="relative w-full h-full">
           {images.map((image, index) => (

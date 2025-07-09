@@ -2,7 +2,7 @@ import React from 'react';
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { motion, type Variants } from "framer-motion";
-import learnifypng from '../assets/Images/Learnify.png';
+import LearnifyImage from '../assets/Images/Learnify.png';
 
 type Stat = {
     label: string;
@@ -444,7 +444,7 @@ const TeachOnLearnify: React.FC = () => {
                                     <div className="max-w-2xl mx-auto">
                                         <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
                                             <img
-                                                src={learnifypng}
+                                                src={LearnifyImage}
                                                 alt="Learnify logo"
                                                 className="w-auto h-16"
                                             />

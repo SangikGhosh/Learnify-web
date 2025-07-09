@@ -49,8 +49,8 @@ const Casarole: React.FC = () => {
   }, [currentIndex, isTransitioning, nextSlide]);
 
   return (
-    <div className="relative w-full flex justify-center items-start pt-16 lg:pt-20">
-      <div className="relative w-full md:w-4/5 lg:w-2/3 aspect-[16/8] overflow-hidden bg-white">
+    <div className="relative w-full flex justify-center items-start pt-16 xl:pt-24">
+      <div className="relative w-full xl:w-4/5 aspect-[16/8] overflow-hidden bg-white">
         {/* Main Image */}
         <div className="relative w-full h-full">
           {images.map((image, index) => (
@@ -476,7 +476,7 @@ const HomePage: React.FC = () => {
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="text-center">
             <motion.h1
-              className="text-3xl font-bold text-black sm:text-5xl lg:text-7xl"
+              className="text-3xl font-bold text-black sm:text-5xl lg:text-6xl xl-text-7xl"
               variants={headingVariants}
             >
               Discover Top Courses

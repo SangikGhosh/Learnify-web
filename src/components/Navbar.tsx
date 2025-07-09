@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GraduationCap, School, ChevronDown, ChevronUp, X } from "lucide-react";
 import ExploreDropdown from "./ExploreDropdown";
@@ -6,6 +6,7 @@ import Searchbar from "./SearchBar";
 import { useAuth } from "../hooks/useAuth";
 import { imageMap } from "./AvatarData";
 import { BASE_URL } from "../utils/config";
+import UserDropdown from "./UserDropdown";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,12 +15,40 @@ const Navbar: React.FC = () => {
   const [isOthersOpen, setIsOthersOpen] = useState(false);
   const [visibleItems, setVisibleItems] = useState<number>(3);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
-  const [username, setUsername] = useState<string>("");
   const [userInitial, setUserInitial] = useState<string>("");
   const isLoggedIn = useAuth();
+  const [username, setUsername] = useState(localStorage.getItem('username') || '');
 
   const joinButtonRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
+
+  const fetchUsername = useCallback(async () => {
+    if (isLoggedIn && !username) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${BASE_URL}/api/common/get-username`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+        if (data.username) {
+          localStorage.setItem('username', data.username);
+          setUsername(data.username);
+          setUserInitial(data.username.charAt(0).toUpperCase());
+        }
+      } catch (error) {
+        console.error('Error fetching username:', error);
+      }
+    } else if (isLoggedIn && username) {
+      setUserInitial(username.charAt(0).toUpperCase());
+    }
+  }, [isLoggedIn, username]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,47 +72,6 @@ const Navbar: React.FC = () => {
       }
     };
 
-    const fetchUsername = async () => {
-      if (isLoggedIn) {
-        try {
-          const token = localStorage.getItem('token');
-
-          if (!token) {
-            throw new Error('No token found');
-          }
-
-          const response = await fetch(`${BASE_URL}/api/common/get-username`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-            // Don't use credentials: 'include' unless you need cookies
-          });
-
-          if (response.status === 401) {
-            // Handle unauthorized (token expired/invalid)
-            console.error('Unauthorized - possibly expired token');
-            // You might want to redirect to login here
-            return;
-          }
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          if (data.username) {
-            setUsername(data.username);
-            console.log('Username fetched:', data.username);
-            setUserInitial(data.username.charAt(0).toUpperCase());
-          }
-        } catch (error) {
-          console.error('Error fetching username:', error);
-        }
-      }
-    };
-
 
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleResize);
@@ -91,11 +79,21 @@ const Navbar: React.FC = () => {
 
     handleResize();
 
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
     return () => {
+      document.body.style.overflow = '';
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
-  }, [isLoggedIn]);
+
+
+
+  }, [isLoggedIn, isMenuOpen, fetchUsername]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -128,7 +126,6 @@ const Navbar: React.FC = () => {
         type: "spring" as const,
         stiffness: 300,
         damping: 30,
-        delay: 0.1
       }
     }
   };
@@ -287,7 +284,7 @@ const Navbar: React.FC = () => {
               <a
                 key={item.name}
                 href={item.href}
-                className="text-lg text-black transition-all duration-200 hover:text-opacity-80 whitespace-nowrap ml-6"
+                className="text-lg hover:text-blue-600 text-black transition-all duration-200 hover:text-opacity-80 whitespace-nowrap ml-4"
               >
                 {item.name}
               </a>
@@ -301,7 +298,7 @@ const Navbar: React.FC = () => {
               >
                 <button
                   onClick={toggleOthers}
-                  className="flex items-center text-lg text-black transition-all duration-200 cursor-pointer hover:text-opacity-80 whitespace-nowrap"
+                  className="flex items-center text-lg text-black transition-all duration-200 cursor-pointer hover:text-blue-600 whitespace-nowrap"
                 >
                   Others
                   {isOthersOpen ? (
@@ -325,7 +322,7 @@ const Navbar: React.FC = () => {
                           <a
                             key={item.name}
                             href={item.href}
-                            className="block px-4 py-2 text-lg transition-colors duration-150"
+                            className="block px-4 py-2 text-md transition-colors duration-150"
                             onClick={() => setIsOthersOpen(false)}
                           >
                             {item.name}
@@ -401,14 +398,10 @@ const Navbar: React.FC = () => {
             </div>
           ) : (
             <div className="hidden lg:flex items-center">
-              <div className="w-14 h-14 rounded-full overflow-hidden">
-                <img
-                  src={imageMap[userInitial as keyof typeof imageMap] || imageMap['A']}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <span className="ml-2 font-medium">{username}</span>
+              <UserDropdown 
+                username={username}
+                userInitial={userInitial} 
+              />
             </div>
           )}
         </div>
@@ -418,7 +411,7 @@ const Navbar: React.FC = () => {
           {isMenuOpen && (
             <>
               <motion.div
-                className="fixed inset-0 backdrop-blur-sm z-40 lg:hidden"
+                className="fixed inset-0 backdrop-blur-sm z-40 lg:hidden transform duration-300"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -437,12 +430,14 @@ const Navbar: React.FC = () => {
                     <div className="flex items-center p-4 border-b border-gray-200">
                       <div className="w-18 h-18 rounded-full overflow-hidden">
                         <img
-                          src={imageMap[userInitial as keyof typeof imageMap] || imageMap['A']}
+                          src={imageMap[userInitial as keyof typeof imageMap] || `https://i.pinimg.com/736x/65/86/33/65863323059a9c78a095f5bae47faa35.jpg`}
                           alt="Profile"
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <span className="ml-3 text-lg font-semibold">{username}</span>
+                      <span className="ml-3 text-lg font-semibold">
+                        {username.length > 15 ? `${username.substring(0, 12)}...` : username}
+                      </span>
                     </div>
                   )}
 
@@ -500,6 +495,14 @@ const Navbar: React.FC = () => {
                         </motion.a>
                       </>
                     )}
+
+                    <motion.p
+                      className="block px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(true)}
+                      variants={menuItemVariants}
+                    >
+                      <ExploreDropdown />
+                    </motion.p>
                   </div>
                 </div>
               </motion.div>

@@ -217,7 +217,7 @@ const Navbar: React.FC = () => {
             <a href="/home" title="" className="flex">
               <img
                 className="w-auto h-12"
-                src="../src/assets/images/Learnify.png"
+                src="../assets/Images/Learnify.png"
                 alt="Learnify Logo"
               />
             </a>

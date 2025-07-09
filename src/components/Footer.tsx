@@ -29,7 +29,7 @@ const Footer = () => {
                     <a href="/" title="" className="flex">
                         <img
                             className="w-auto sm:h-20 h-16"
-                            src="../src/assets/images/Learnify.png"
+                            src="../assets/Images/Learnify.png"
                             alt="Learnify Logo"
                         />
                     </a>

@@ -443,7 +443,7 @@ const TeachOnLearnify: React.FC = () => {
                                     <div className="max-w-2xl mx-auto">
                                         <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
                                             <img
-                                                src="../src/assets/images/Learnify.png"
+                                                src="../assets/Images/Learnify.png"
                                                 alt="Learnify logo"
                                                 className="w-auto h-16"
                                             />

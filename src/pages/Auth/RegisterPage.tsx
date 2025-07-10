@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft, User } from 'lucide-react';
-import { BASE_URL } from "../utils/config";
+import { BASE_URL } from "../../utils/config";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";

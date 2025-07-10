@@ -400,7 +400,7 @@ const Navbar: React.FC = () => {
                     <div className="rounded-xl shadow-lg bg-white overflow-hidden border border-gray-200">
                       <motion.a
                         href="/register"
-                        className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
+                        className="flex items-center px-4 py-3 transition-colors duration-150"
                         whileHover={{ x: 4 }}
                       >
                         <GraduationCap className="w-5 h-5 mr-3 text-yellow-500" />
@@ -414,7 +414,7 @@ const Navbar: React.FC = () => {
 
                       <motion.a
                         href="/instructor-register"
-                        className="flex items-center px-4 py-3 hover:bg-yellow-50 transition-colors duration-150"
+                        className="flex items-center px-4 py-3 transition-colors duration-150"
                         whileHover={{ x: 4 }}
                       >
                         <School className="w-5 h-5 mr-3 text-yellow-500" />
@@ -460,13 +460,17 @@ const Navbar: React.FC = () => {
                 <div className="flex flex-col h-full p-4">
                   {isLoggedIn && (
                     <div className="flex items-center p-4 border-b border-gray-200">
-                      <div className="w-18 h-18 rounded-full overflow-hidden">
+                      <div className="relative w-18 h-18">
                         <img
-                          src={imageMap[userInitial as keyof typeof imageMap] || `https://i.pinimg.com/736x/65/86/33/65863323059a9c78a095f5bae47faa35.jpg`}
+                          src={
+                            imageMap[userInitial as keyof typeof imageMap] || `https://i.pinimg.com/736x/65/86/33/65863323059a9c78a095f5bae47faa35.jpg`
+                          }
                           alt="Profile"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full rounded-full overflow-hidden object-cover"
                         />
+                        <span className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 border-3 border-white rounded-full"></span>
                       </div>
+
                       <div className="flex flex-col items-start">
                         <span className="ml-3 text-sm">
                           Welcome Back,

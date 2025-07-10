@@ -1,51 +1,33 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+import LoginPage from "./pages/Auth/LoginPage";
+import RegisterPage from "./pages/Auth/RegisterPage";
 import TeachOnLearnify from "./pages/TeachOnLearnify";
-import InstructorRegister from "./pages/InstructorRegister";
-import InstructorLogin from "./pages/InstructorLogin";
-import VerifyOTPPage from "./pages/VerifyOTPPage";
+import InstructorRegister from "./pages/Auth/InstructorRegister";
+import VerifyOTPPage from "./pages/Auth/VerifyOTPPage";
+import ForgotPasswordVerifyEmail from "./pages/Auth/ForgotPasswordVerifyEmail";
+import ForgotPasswordVerifyOTPPage from "./pages/Auth/ForgotPasswordVerifyOTPPage";
+import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 
 function AppContent() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  
-  const hideLayout = [
-    "/login", 
-    "/register", 
-    "/otp",
-    "/reset-password",
-    "/forgot-password",
-    "/instructor-register",
-    "/instructor-login",
-    "/verify-otp",
-  ].includes(location.pathname);
-
-  useEffect(() => {
-    if (location.pathname === "/reset-password" && !location.search.includes("token=")) {
-      navigate("/forgot-password");
-    }
-  }, [location, navigate]);
-
   return (
     <>
-      {!hideLayout && <Navbar />}
+      {<Navbar />}
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={ <RegisterPage /> }/>
-        <Route path="/teach-on-learnify" element={ <TeachOnLearnify /> } />
-        <Route path="/instructor-register" element={ <InstructorRegister /> } />
-        <Route path="/instructor-login" element={<InstructorLogin />} />
-        <Route path="/verify-otp" element={ <VerifyOTPPage /> } />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/teach-on-learnify" element={<TeachOnLearnify />} />
+        <Route path="/instructor-register" element={<InstructorRegister />} />
+        <Route path="/verify-otp" element={<VerifyOTPPage />} />
+        <Route path="/forgot-password/verify-email" element={<ForgotPasswordVerifyEmail />} />
+        <Route path="/forgot-password/verify-otp" element={<ForgotPasswordVerifyOTPPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Routes>
-      {!hideLayout && <Footer />}
+      {<Footer />}
     </>
   );
 }

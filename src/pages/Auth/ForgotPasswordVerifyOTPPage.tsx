@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, type Variants } from "framer-motion";
 import { ArrowLeft, Mail } from 'lucide-react';
-import { BASE_URL } from "../utils/config";
+import { BASE_URL } from "../../utils/config";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate, useLocation } from "react-router-dom";
@@ -23,7 +23,7 @@ const buttonTapVariants = {
   tap: { scale: 0.98 }
 };
 
-const VerifyOTPPage: React.FC = () => {
+const ForgotPasswordVerifyOTPPage: React.FC = () => {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,8 +31,8 @@ const VerifyOTPPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get email from location state or default to empty string
-  const [email] = useState(location.state?.email || "");
+  // Get email from location state
+  const email = location.state?.email || "";
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
@@ -100,7 +100,7 @@ const VerifyOTPPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
+      const response = await fetch(`${BASE_URL}/auth/forgot-password/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,16 +117,23 @@ const VerifyOTPPage: React.FC = () => {
         throw new Error(data.message || 'OTP verification failed');
       }
 
-      toast.success("Account verified successfully!");
+      if (!data.resetToken) {
+        throw new Error("No reset token received from server");
+      }
+
+      toast.success(data.message || "OTP verified successfully!");
       
-      // Store token in localStorage or context
-      localStorage.setItem('token', data.token);
-      
-      // Redirect to dashboard or home page after 2 seconds
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      // Ensure we're using the correct path and navigation method
+      navigate("/reset-password", {
+        replace: true, // Prevent going back to OTP page
+        state: {
+          resetToken: data.resetToken,
+          email: data.email
+        }
+      });
+
     } catch (error: unknown) {
+      console.error("Verification error:", error);
       if (error instanceof Error) {
         toast.error(error.message || 'An error occurred during verification');
       } else {
@@ -139,7 +146,7 @@ const VerifyOTPPage: React.FC = () => {
 
   const handleResendCode = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/auth/resend-otp`, {
+      const response = await fetch(`${BASE_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -214,15 +221,15 @@ const VerifyOTPPage: React.FC = () => {
                 className="flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-900 rounded-lg hover:bg-black hover:text-white transition-colors text-sm sm:text-base cursor-pointer"
                 variants={buttonTapVariants}
                 whileTap="tap"
-                onClick={() => navigate("/home")}
+                onClick={() => navigate(-1)}
               >
                 <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 mr-1 -mt-0.5 hover:text-white" />
-                Back to Home
+                Back
               </motion.button>
             </div>
 
             <motion.h1 
-              className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 pt-8"
+              className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6"
               variants={fadeInVariants}
             >
               Verify Your Email
@@ -268,10 +275,10 @@ const VerifyOTPPage: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-100 text-sm sm:text-base md:text-lg font-medium ${
+                className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-100 text-sm sm:text-base font-medium ${
                   isOtpComplete && !isSubmitting
-                    ? 'bg-black text-white'
-                    : 'bg-black text-white cursor-not-allowed'
+                    ? 'bg-black text-white hover:bg-yellow-400 hover:text-black'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
                 variants={buttonTapVariants}
                 whileTap={isOtpComplete && !isSubmitting ? "tap" : undefined}
@@ -296,7 +303,7 @@ const VerifyOTPPage: React.FC = () => {
                   <button 
                     type="button" 
                     className={`font-semibold ${
-                      timeLeft > 0 ? 'text-gray-400' : 'text-blue-600 hover:text-blue-700'
+                      timeLeft > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-700'
                     } focus:outline-none`}
                     onClick={handleResendCode}
                     disabled={timeLeft > 0}
@@ -321,4 +328,4 @@ const VerifyOTPPage: React.FC = () => {
   );
 }
 
-export default VerifyOTPPage;
+export default ForgotPasswordVerifyOTPPage;

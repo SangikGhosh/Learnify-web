@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { BASE_URL } from "../utils/config";
+import { BASE_URL } from "../../utils/config";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
@@ -47,7 +47,6 @@ const LoginPage: React.FC = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user types
     setErrors(prev => ({
       ...prev,
       [name]: ""
@@ -278,7 +277,7 @@ const LoginPage: React.FC = () => {
                   />
                   Remember me
                 </label>
-                <a href="/forgot-password" className="text-red-500 font-semibold hover:text-red-600 transition-colors">
+                <a href="/forgot-password/verify-email" className="text-red-500 font-semibold hover:text-red-600 transition-colors">
                   Forgot Password?
                 </a>
               </div>
@@ -387,26 +386,6 @@ const LoginPage: React.FC = () => {
                 </div>
               </motion.div>
             ))}
-          </motion.div>
-
-          <motion.div
-            className="hidden lg:block"
-            variants={fadeInVariants}
-          >
-            <motion.button
-              className="cursor-pointer px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm sm:text-base relative overflow-hidden group"
-              variants={buttonTapVariants}
-              whileTap="tap"
-              onClick={() => navigate("/instructor-login")}
-            >
-              <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                </svg>
-                Login as Instructor
-              </span>
-            </motion.button>
           </motion.div>
         </motion.div>
       </motion.div>

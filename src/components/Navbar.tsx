@@ -7,6 +7,27 @@ import { useAuth } from "../hooks/useAuth";
 import { imageMap } from "./AvatarData";
 import { BASE_URL } from "../utils/config";
 import UserDropdown from "./UserDropdown";
+import LogoutModal from "./LogoutModel";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {
+  BookOpenIcon,
+  ShoppingCartIcon,
+  HeartIcon,
+  PencilIcon,
+  AcademicCapIcon,
+  BellIcon,
+  ChatBubbleLeftRightIcon,
+  Cog6ToothIcon,
+  CreditCardIcon,
+  ClockIcon,
+  GiftIcon,
+  ReceiptPercentIcon,
+  QuestionMarkCircleIcon,
+  ArrowRightOnRectangleIcon,
+  HomeIcon,
+  MagnifyingGlassIcon
+} from '@heroicons/react/24/outline';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,6 +39,7 @@ const Navbar: React.FC = () => {
   const [userInitial, setUserInitial] = useState<string>("");
   const isLoggedIn = useAuth();
   const [username, setUsername] = useState(localStorage.getItem('username') || '');
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const joinButtonRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
@@ -109,14 +131,29 @@ const Navbar: React.FC = () => {
     setIsOthersOpen(!isOthersOpen);
   };
 
+
+
+  const handleSuccessfulLogout = () => {
+    setShowLogoutModal(false);
+    toast.success('Logged out successfully', {
+      onClose: () => {
+        window.location.reload();
+      },
+      autoClose: 1500
+    });
+  };
+
+
+
   const menuVariants = {
     open: {
       x: 0,
       opacity: 1,
       transition: {
         type: "spring" as const,
-        stiffness: 300,
-        damping: 30
+        stiffness: 400,
+        damping: 40,
+        restDelta: 0.001
       }
     },
     closed: {
@@ -124,8 +161,9 @@ const Navbar: React.FC = () => {
       opacity: 0,
       transition: {
         type: "spring" as const,
-        stiffness: 300,
-        damping: 30,
+        stiffness: 400,
+        damping: 40,
+        restDelta: 0.001
       }
     }
   };
@@ -134,18 +172,12 @@ const Navbar: React.FC = () => {
     open: {
       y: 0,
       opacity: 1,
-      transition: {
-        y: { stiffness: 1000, velocity: -100, duration: 0.15 },
-        opacity: { duration: 0.15 }
-      }
+      transition: { duration: 0 }
     },
     closed: {
-      y: 50,
-      opacity: 0,
-      transition: {
-        y: { stiffness: 1000, duration: 0.15 },
-        opacity: { duration: 0.1 }
-      }
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0 }
     }
   };
 
@@ -398,9 +430,9 @@ const Navbar: React.FC = () => {
             </div>
           ) : (
             <div className="hidden lg:flex items-center">
-              <UserDropdown 
+              <UserDropdown
                 username={username}
-                userInitial={userInitial} 
+                userInitial={userInitial}
               />
             </div>
           )}
@@ -435,38 +467,32 @@ const Navbar: React.FC = () => {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <span className="ml-3 text-lg font-semibold">
-                        {username.length > 15 ? `${username.substring(0, 12)}...` : username}
-                      </span>
+                      <div className="flex flex-col items-start">
+                        <span className="ml-3 text-sm">
+                          Welcome Back,
+                        </span>
+                        <span className="ml-3 text-lg font-semibold">
+                          {username.length > 15 ? `${username.substring(0, 12)}...` : username}
+                        </span>
+                      </div>
                     </div>
                   )}
 
-                  <div className="flex-grow pt-4 pb-4 space-y-2 overflow-y-auto">
-                    <motion.a
-                      href="/home"
-                      className="block px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                      onClick={() => setIsMenuOpen(false)}
-                      variants={menuItemVariants}
-                    >
-                      Home
-                    </motion.a>
-                    <motion.a
-                      href="/teach-on-learnify"
-                      className="block px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                      onClick={() => setIsMenuOpen(false)}
-                      variants={menuItemVariants}
-                    >
-                      Teach on LearniFy
-                    </motion.a>
-                    <motion.a
-                      href="#"
-                      className="block px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                      onClick={() => setIsMenuOpen(false)}
-                      variants={menuItemVariants}
-                    >
-                      View Cart
-                    </motion.a>
-
+                  <div className="flex-grow pb-4 space-y-2 overflow-y-auto">
+                    <ToastContainer
+                      position="top-center"
+                      autoClose={5000}
+                      hideProgressBar={false}
+                      newestOnTop={false}
+                      closeOnClick
+                      rtl={false}
+                      pauseOnFocusLoss
+                      draggable
+                      pauseOnHover
+                      theme="colored"
+                      toastClassName="rounded-lg shadow-lg"
+                      progressClassName="bg-yellow-400"
+                    />
                     {!isLoggedIn && (
                       <>
                         <motion.a
@@ -495,14 +521,167 @@ const Navbar: React.FC = () => {
                         </motion.a>
                       </>
                     )}
-
                     <motion.p
-                      className="block px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                      className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
                       onClick={() => setIsMenuOpen(true)}
                       variants={menuItemVariants}
                     >
+                      <MagnifyingGlassIcon className="w-5 h-5" />
                       <ExploreDropdown />
                     </motion.p>
+                    <motion.a
+                      href="/home"
+                      className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                      variants={menuItemVariants}
+                    >
+                      <HomeIcon className="w-5 h-5" />
+                      Home
+                    </motion.a>
+                    {isLoggedIn && (
+                      <>
+                        <motion.a
+                          href="#"
+                          className="flex items-center px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50 gap-2"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <BookOpenIcon className="w-5 h-5" />
+                          My Learning
+                        </motion.a>
+
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <PencilIcon className="w-5 h-5" />
+                          Edit Profile
+                        </motion.a>
+                      </>
+                    )}
+                    <motion.a
+                      href="#"
+                      className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                      variants={menuItemVariants}
+                    >
+                      <ShoppingCartIcon className="w-5 h-5" />
+                      My Cart
+                    </motion.a>
+                    {isLoggedIn && (
+                      <>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <HeartIcon className="w-5 h-5" />
+                          Wishlist
+                        </motion.a>
+                      </>
+                    )}
+                    <motion.a
+                      href="#"
+                      className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                      variants={menuItemVariants}
+                    >
+                      <AcademicCapIcon className="w-5 h-5" />
+                      Teach on Learnify
+                    </motion.a>
+
+                    {isLoggedIn && (
+                      <>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <BellIcon className="w-5 h-5" />
+                          Notifications
+                        </motion.a>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                          Messages
+                        </motion.a>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <Cog6ToothIcon className="w-5 h-5" />
+                          Account Settings
+                        </motion.a>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <CreditCardIcon className="w-5 h-5" />
+                          Payment Methods
+                        </motion.a>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <ClockIcon className="w-5 h-5" />
+                          Subscriptions
+                        </motion.a>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <GiftIcon className="w-5 h-5" />
+                          LearniFy Credits
+                        </motion.a>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <ReceiptPercentIcon className="w-5 h-5" />
+                          Purchese History
+                        </motion.a>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <QuestionMarkCircleIcon className="w-5 h-5" />
+                          Help & Support
+                        </motion.a>
+                        <motion.button
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-red-500 rounded-md hover:bg-gray-50 w-full text-left"
+                          onClick={() => setShowLogoutModal(true)}
+                          variants={menuItemVariants}
+                        >
+                          <ArrowRightOnRectangleIcon className="w-5 h-5 text-red-500" />
+                          Logout
+                        </motion.button>
+                        <LogoutModal
+                          show={showLogoutModal}
+                          onClose={() => setShowLogoutModal(false)}
+                          onLogoutSuccess={handleSuccessfulLogout}
+                        />
+                      </>
+                    )}
                   </div>
                 </div>
               </motion.div>

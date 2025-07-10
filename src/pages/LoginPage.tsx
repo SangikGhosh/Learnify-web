@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
     email: "",
     password: ""
   });
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -75,6 +75,12 @@ const LoginPage: React.FC = () => {
       valid = false;
     } else if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters long";
+      valid = false;
+    }
+
+    // Add validation for rememberMe
+    if (!rememberMe) {
+      toast.error("You must agree to 'Remember Me' to proceed");
       valid = false;
     }
 
@@ -262,12 +268,13 @@ const LoginPage: React.FC = () => {
               )}
 
               <div className="flex justify-between items-center text-xs sm:text-sm md:text-base">
-                <label className="flex items-center gap-1.5 sm:gap-2 cursor-pointer z-40">
+                <label className="flex items-center gap-1.5 sm:gap-2 cursor-default">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 accent-black cursor-pointer"
+                    className="w-4 h-4 accent-black cursor-default"
                     checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
+                    onChange={() => {}}
+                    readOnly
                   />
                   Remember me
                 </label>

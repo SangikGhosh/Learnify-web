@@ -189,7 +189,7 @@ const ForgotPasswordVerifyEmail: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 focus:text-black hover:text-black transition-all duration-100 text-sm sm:text-base font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl focus:bg-yellow-500 focus:text-black transition-all duration-100 text-sm sm:text-base font-medium disabled:opacity-70 disabled:cursor-not-allowed"
                 variants={buttonTapVariants}
                 whileTap={isSubmitting ? {} : "tap"}
                 disabled={isSubmitting}

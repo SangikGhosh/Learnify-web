@@ -5,7 +5,7 @@ import { BASE_URL } from "../../utils/config";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate, useLocation } from "react-router-dom";
-
+import SuccessCard from "../../components/SuccessCard";
 // Animation variants
 const fadeInVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -23,20 +23,21 @@ const buttonTapVariants = {
   tap: { scale: 0.98 }
 };
 
-const ForgotPasswordVerifyOTPPage: React.FC = () => {
+const InstructorVerifyOTPPage: React.FC = () => {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
 
-  // Get email from location state
-  const email = location.state?.email || "";
+  // Get email from location state or default to empty string
+  const [email] = useState(location.state?.email || "");
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
-    
+
     // Timer countdown
     const timer = setInterval(() => {
       setTimeLeft(prev => {
@@ -53,11 +54,11 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
 
   const handleOtpChange = (element: HTMLInputElement, index: number) => {
     if (isNaN(Number(element.value))) return false;
-    
+
     const newOtp = [...otp];
     newOtp[index] = element.value;
     setOtp(newOtp);
-    
+
     // Focus next input
     if (element.value && index < 5) {
       inputRefs.current[index + 1]?.focus();
@@ -74,15 +75,15 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
     e.preventDefault();
     const pasteData = e.clipboardData.getData('text/plain').slice(0, 6);
     const newOtp = [...otp];
-    
+
     for (let i = 0; i < pasteData.length; i++) {
       if (i < 6 && !isNaN(Number(pasteData[i]))) {
         newOtp[i] = pasteData[i];
       }
     }
-    
+
     setOtp(newOtp);
-    
+
     // Focus the last input with data
     const lastFilledIndex = Math.min(pasteData.length - 1, 5);
     inputRefs.current[lastFilledIndex]?.focus();
@@ -91,7 +92,7 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const fullOtp = otp.join("");
-    
+
     if (fullOtp.length !== 6) {
       toast.error("Please enter a 6-digit OTP");
       return;
@@ -100,7 +101,7 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${BASE_URL}/auth/forgot-password/verify-otp`, {
+      const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,23 +118,9 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
         throw new Error(data.message || 'OTP verification failed');
       }
 
-      if (!data.resetToken) {
-        throw new Error("No reset token received from server");
-      }
-
-      toast.success(data.message || "OTP verified successfully!");
-      
-      // Ensure we're using the correct path and navigation method
-      navigate("/reset-password", {
-        replace: true, // Prevent going back to OTP page
-        state: {
-          resetToken: data.resetToken,
-          email: data.email
-        }
-      });
-
+      // Show success card instead of redirecting immediately
+      setShowSuccessCard(true);
     } catch (error: unknown) {
-      console.error("Verification error:", error);
       if (error instanceof Error) {
         toast.error(error.message || 'An error occurred during verification');
       } else {
@@ -146,7 +133,7 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
 
   const handleResendCode = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/auth/forgot-password`, {
+      const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +151,7 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
       setTimeLeft(600);
       setOtp(Array(6).fill(""));
       inputRefs.current[0]?.focus();
-      
+
       toast.success("New OTP sent to your email!");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -184,6 +171,7 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-center items-center px-4 sm:px-6 py-8 sm:py-12">
+      {showSuccessCard && <SuccessCard onClose={() => setShowSuccessCard(false)} />}
       <ToastContainer
         position="top-center"
         autoClose={5000}
@@ -198,8 +186,8 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
         toastClassName="rounded-lg shadow-lg"
         progressClassName="bg-yellow-400"
       />
-      
-      <motion.div 
+
+      <motion.div
         className="max-w-md w-full"
         initial="hidden"
         animate="visible"
@@ -211,7 +199,7 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
           }
         }}
       >
-        <motion.div 
+        <motion.div
           className="flex flex-col items-center"
           variants={fadeInVariants}
         >
@@ -221,21 +209,21 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
                 className="flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-900 rounded-lg hover:bg-black hover:text-white transition-colors text-sm sm:text-base cursor-pointer"
                 variants={buttonTapVariants}
                 whileTap="tap"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate("/home")}
               >
                 <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 mr-1 -mt-0.5 hover:text-white" />
-                Back
+                Back to Home
               </motion.button>
             </div>
 
-            <motion.h1 
-              className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6"
+            <motion.h1
+              className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 pt-8"
               variants={fadeInVariants}
             >
               Verify Your Email
             </motion.h1>
 
-            <motion.div 
+            <motion.div
               className="flex justify-center mb-6 sm:mb-8"
               variants={fadeInVariants}
             >
@@ -244,8 +232,8 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
                 <span>We've sent a 6-digit code to <strong>{email}</strong></span>
               </div>
             </motion.div>
-            
-            <motion.form 
+
+            <motion.form
               className="space-y-6 sm:space-y-8"
               variants={fadeInVariants}
               onSubmit={handleSubmit}
@@ -254,7 +242,7 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
                 <p className="text-sm sm:text-base text-gray-700 text-center">
                   Enter the verification code sent to your email
                 </p>
-                
+
                 <div className="flex justify-center space-x-2 sm:space-x-3">
                   {otp.map((data, index) => (
                     <input
@@ -275,11 +263,10 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-100 text-sm sm:text-base font-medium ${
-                  isOtpComplete && !isSubmitting
+                className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-100 text-sm sm:text-base md:text-lg font-medium ${isOtpComplete && !isSubmitting
                     ? 'bg-black text-white focus:bg-yellow-500 focus:text-black'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
+                    : 'bg-black text-white cursor-not-allowed'
+                  }`}
                 variants={buttonTapVariants}
                 whileTap={isOtpComplete && !isSubmitting ? "tap" : undefined}
                 disabled={!isOtpComplete || isSubmitting}
@@ -300,18 +287,17 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
               <div className="text-center space-y-3">
                 <p className="text-sm sm:text-base text-gray-600">
                   Didn't receive the code?{" "}
-                  <button 
-                    type="button" 
-                    className={`font-semibold ${
-                      timeLeft > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-700'
-                    } focus:outline-none`}
+                  <button
+                    type="button"
+                    className={`font-semibold ${timeLeft > 0 ? 'text-gray-400' : 'text-blue-600 hover:text-blue-700'
+                      } focus:outline-none`}
                     onClick={handleResendCode}
                     disabled={timeLeft > 0}
                   >
                     Resend Code
                   </button>
                 </p>
-                
+
                 <p className="text-xs sm:text-sm text-gray-500">
                   {timeLeft > 0 ? (
                     <>The code will expire in <span className="font-bold">{formattedTime}</span></>
@@ -328,4 +314,4 @@ const ForgotPasswordVerifyOTPPage: React.FC = () => {
   );
 }
 
-export default ForgotPasswordVerifyOTPPage;
+export default InstructorVerifyOTPPage;

@@ -70,11 +70,15 @@ const ResetPasswordPage: React.FC = () => {
       confirmPassword: ""
     };
 
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).*$/;
     if (!formData.newPassword) {
-      newErrors.newPassword = "New password is required";
+      newErrors.newPassword = "Password is required";
       valid = false;
-    } else if (formData.newPassword.length < 6) {
-      newErrors.newPassword = "Password must be at least 6 characters long";
+    } else if (formData.newPassword.length < 8) {
+      newErrors.newPassword = "Password must be at least 8 characters long";
+      valid = false;
+    } else if (!passwordRegex.test(formData.newPassword)) {
+      newErrors.newPassword = "Must contain 1 uppercase, 1 digit, and 1 special character";
       valid = false;
     }
 
@@ -287,7 +291,7 @@ const ResetPasswordPage: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 focus:text-black hover:text-black transition-all duration-100 text-sm sm:text-base font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl focus:bg-yellow-500 focus:text-black transition-all duration-100 text-sm sm:text-base font-medium disabled:opacity-70 disabled:cursor-not-allowed"
                 variants={buttonTapVariants}
                 whileTap={isSubmitting ? {} : "tap"}
                 disabled={isSubmitting}

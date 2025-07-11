@@ -122,10 +122,9 @@ const VerifyOTPPage: React.FC = () => {
       // Store token in localStorage or context
       localStorage.setItem('token', data.token);
       
-      // Redirect to dashboard or home page after 2 seconds
       setTimeout(() => {
-        navigate("/");
-      }, 2000);
+        window.location.href = "/home";
+      }, 1000);
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message || 'An error occurred during verification');
@@ -270,7 +269,7 @@ const VerifyOTPPage: React.FC = () => {
                 type="submit"
                 className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-100 text-sm sm:text-base md:text-lg font-medium ${
                   isOtpComplete && !isSubmitting
-                    ? 'bg-black text-white'
+                    ? 'bg-black text-white focus:bg-yellow-500 focus:text-black'
                     : 'bg-black text-white cursor-not-allowed'
                 }`}
                 variants={buttonTapVariants}

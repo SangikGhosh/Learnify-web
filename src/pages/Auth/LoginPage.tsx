@@ -6,7 +6,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 
-// Animation variants
 const fadeInVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
@@ -60,12 +59,14 @@ const LoginPage: React.FC = () => {
       password: ""
     };
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
-      newErrors.email = "Email is required";
+      newErrors.email = "Email or username is required";
       valid = false;
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
+    } else if (formData.email.length < 3) {
+      newErrors.email = "Must be at least 3 characters";
+      valid = false;
+    } else if (formData.email.length > 50) {
+      newErrors.email = "Must be at most 50 characters";
       valid = false;
     }
 
@@ -77,7 +78,6 @@ const LoginPage: React.FC = () => {
       valid = false;
     }
 
-    // Add validation for rememberMe
     if (!rememberMe) {
       toast.error("You must agree to 'Remember Me' to proceed");
       valid = false;
@@ -109,7 +109,11 @@ const LoginPage: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+        if (data.error) {
+          throw new Error(data.error);
+        } else {
+          throw new Error('Login failed');
+        }
       }
 
       // Store token and user data
@@ -225,9 +229,9 @@ const LoginPage: React.FC = () => {
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   name="email"
-                  placeholder="Email address"
+                  placeholder="Enter your email or username"
                   className={`w-full pl-12 pr-4 py-3 sm:px-5 sm:py-2.5 sm:pl-12 border ${errors.email ? 'border-red-500' : 'border-gray-400'} focus:border-black rounded-lg sm:rounded-xl focus:outline-none focus:ring focus:ring-black text-sm sm:text-base md:text-lg`}
                   value={formData.email}
                   onChange={handleChange}
@@ -283,7 +287,7 @@ const LoginPage: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 focus:text-black hover:text-black transition-all duration-100 text-sm sm:text-base md:text-lg font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl focus:bg-yellow-500 focus:text-black transition-all duration-100 text-sm sm:text-base md:text-lg font-medium disabled:opacity-70 disabled:cursor-not-allowed"
                 variants={buttonTapVariants}
                 whileTap={isSubmitting ? {} : "tap"}
                 disabled={isSubmitting}
@@ -328,7 +332,7 @@ const LoginPage: React.FC = () => {
 
         {/* Right Section - Features */}
         <motion.div
-          className="space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 order-2 lg:order-2 mb-8 lg:mb-0"
+          className="space-y-6 items-center sm:mx-32 md:mx-40 lg:mx-0 sm:space-y-8 md:space-y-10 lg:space-y-12 order-2 lg:order-2 mb-8 mt-10 lg:mb-0"
           variants={fadeInVariants}
         >
           <motion.h2

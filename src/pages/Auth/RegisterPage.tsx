@@ -78,7 +78,14 @@ const RegisterPage: React.FC = () => {
     } else if (formData.username.length < 3 || formData.username.length > 20) {
       newErrors.username = "Username must be between 3 and 20 characters";
       valid = false;
+    } else if (/\s/.test(formData.username)) {
+      newErrors.username = "Username must not contain spaces";
+      valid = false;
+    } else if (/@/.test(formData.username)) {
+      newErrors.username = "Username must not contain '@'";
+      valid = false;
     }
+
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).*$/;
     if (!formData.password) {
@@ -122,7 +129,11 @@ const RegisterPage: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+        if (data.error) {
+          throw new Error(data.error);
+        } else {
+          throw new Error('Registration failed');
+        }
       }
 
       toast.success("OTP sent to your email. Please verify to complete registration.");
@@ -131,7 +142,7 @@ const RegisterPage: React.FC = () => {
       }, 2000);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || 'An error occurred during registration');
+        toast.error(error.message);
       } else {
         toast.error('An error occurred during registration');
       }
@@ -157,7 +168,7 @@ const RegisterPage: React.FC = () => {
         progressClassName="bg-yellow-400"
       />
       <motion.div
-        className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16"
+        className="max-w-7xl w-full grid grid-cols-1 items-center lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16"
         initial="hidden"
         animate="visible"
         variants={{
@@ -169,7 +180,7 @@ const RegisterPage: React.FC = () => {
         }}
       >
         <motion.div
-          className="flex flex-col items-start order-1 lg:order-1"
+          className="flex flex-col items-center order-1 lg:order-1"
           variants={fadeInVariants}
         >
           <div className="w-full px-2 lg:px-0 max-w-md">
@@ -295,7 +306,7 @@ const RegisterPage: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl focus:outline-none text-sm sm:text-base md:text-lg font-medium disabled:opacity-70 disabled:cursor-not-allowed relative"
+                className="w-full bg-black text-white focus:bg-yellow-500 focus:text-black py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl focus:outline-none text-sm sm:text-base md:text-lg font-medium disabled:opacity-70 disabled:cursor-not-allowed relative"
                 variants={buttonTapVariants}
                 whileTap={isSubmitting ? {} : "tap"}
                 disabled={isSubmitting || !agreeToTerms}
@@ -339,7 +350,7 @@ const RegisterPage: React.FC = () => {
         </motion.div>
 
         <motion.div
-          className="space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 order-2 lg:order-2 mb-8 lg:mb-0"
+          className="space-y-6 sm:space-y-8 sm:mx-32 md:mx-40 lg:mx-0 md:space-y-10 lg:space-y-12 order-2 lg:order-2 mb-8 lg:mb-0"
           variants={fadeInVariants}
         >
           <motion.h2

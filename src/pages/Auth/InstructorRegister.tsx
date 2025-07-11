@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { BASE_URL } from "../../utils/config";
 
 // Animation variants
 const fadeInVariants = {
@@ -21,14 +25,137 @@ const buttonTapVariants = {
 
 const InstructorRegister: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    username: "",
+    password: ""
+  });
+  const [errors, setErrors] = useState({
+    email: "",
+    username: "",
+    password: ""
+  });
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user types
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      email: "",
+      username: "",
+      password: "",
+    };
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+      valid = false;
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+      valid = false;
+    }
+
+    if (!formData.username) {
+      newErrors.username = "Username is required";
+      valid = false;
+    } else if (formData.username.length < 3 || formData.username.length > 20) {
+      newErrors.username = "Username must be between 3 and 20 characters";
+      valid = false;
+    } else if (/\s/.test(formData.username)) {
+      newErrors.username = "Username must not contain spaces";
+      valid = false;
+    } else if (/@/.test(formData.username)) {
+      newErrors.username = "Username must not contain '@'";
+      valid = false;
+    }
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).*$/;
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+      valid = false;
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters long";
+      valid = false;
+    } else if (!passwordRegex.test(formData.password)) {
+      newErrors.password = "Must contain 1 uppercase, 1 digit, and 1 special character";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+    if (!agreeToTerms) {
+      toast.error("You must agree to the Instructor Agreement and Privacy Policy");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          role: "INSTRUCTOR"
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.error) {
+          throw new Error(data.error);
+        } else {
+          throw new Error('Registration failed');
+        }
+      }
+
+      toast.success("OTP sent to your email. Please verify to complete registration.");
+      setTimeout(() => {
+        navigate("/instructor-verify-otp", { state: { email: formData.email } });
+      }, 2000);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('An error occurred during registration');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-center items-center px-4 sm:px-6 py-8 sm:py-12">
+      <ToastContainer position="top-center" autoClose={5000} />
       <motion.div 
         className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16"
         initial="hidden"
@@ -76,6 +203,7 @@ const InstructorRegister: React.FC = () => {
             <motion.form 
               className="space-y-4 sm:space-y-4 md:space-y-5"
               variants={fadeInVariants}
+              onSubmit={handleSubmit}
             >
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -83,9 +211,13 @@ const InstructorRegister: React.FC = () => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Full Name"
+                  name="username"
+                  placeholder="Username"
                   className="w-full pl-12 pr-4 py-3 sm:px-5 sm:py-2.5 sm:pl-12 border border-gray-400 focus:border-black rounded-lg sm:rounded-xl focus:outline-none focus:ring focus:ring-black text-sm sm:text-base md:text-lg"
+                  value={formData.username}
+                  onChange={handleChange}
                 />
+                {errors.username && <p className="text-red-500 text-xs mt-1 text-left">{errors.username}</p>}
               </div>
 
               <div className="relative">
@@ -94,9 +226,13 @@ const InstructorRegister: React.FC = () => {
                 </div>
                 <input
                   type="email"
+                  name="email"
                   placeholder="Professional Email"
                   className="w-full pl-12 pr-4 py-3 sm:px-5 sm:py-2.5 sm:pl-12 border border-gray-400 focus:border-black rounded-lg sm:rounded-xl focus:outline-none focus:ring focus:ring-black text-sm sm:text-base md:text-lg"
+                  value={formData.email}
+                  onChange={handleChange}
                 />
+                {errors.email && <p className="text-red-500 text-xs mt-1 text-left">{errors.email}</p>}
               </div>
 
               <div className="relative">
@@ -105,10 +241,11 @@ const InstructorRegister: React.FC = () => {
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
+                  name="password"
                   placeholder="Create Password (min. 8 characters)"
                   className="w-full pl-12 pr-4 py-3 sm:px-5 sm:py-2.5 sm:pl-12 border border-gray-400 focus:border-black rounded-lg sm:rounded-xl focus:outline-none focus:ring focus:ring-black text-sm sm:text-base md:text-lg"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                 />
                 <button
                   type="button"
@@ -121,6 +258,7 @@ const InstructorRegister: React.FC = () => {
                     <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   )}
                 </button>
+                {errors.password && <p className="text-red-500 text-xs mt-1 text-left">{errors.password}</p>}
               </div>
 
               <div className="flex items-center text-xs sm:text-sm md:text-base">
@@ -128,6 +266,8 @@ const InstructorRegister: React.FC = () => {
                   <input
                     type="checkbox"
                     className="w-4 h-4 accent-black cursor-pointer"
+                    checked={agreeToTerms}
+                    onChange={(e) => setAgreeToTerms(e.target.checked)}
                   />
                   I agree to the <strong>Instructor Agreement</strong> and <strong>Privacy Policy</strong>
                 </label>
@@ -135,11 +275,12 @@ const InstructorRegister: React.FC = () => {
 
               <motion.button
                 type="submit"
-                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl hover:bg-yellow-400 focus:bg-yellow-500 focus:text-black hover:text-black transition-all duration-50 text-sm sm:text-base md:text-lg font-medium cursor-pointer"
+                className="w-full bg-black text-white py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl focus:bg-yellow-500 focus:text-black transition-all duration-50 text-sm sm:text-base md:text-lg font-medium cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
                 variants={buttonTapVariants}
                 whileTap="tap"
+                disabled={isSubmitting}
               >
-                Apply as Instructor
+                {isSubmitting ? "Processing..." : "Apply as Instructor"}
               </motion.button>
 
               <p className="text-center text-xs sm:text-sm md:text-base">

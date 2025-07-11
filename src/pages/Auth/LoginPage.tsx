@@ -120,15 +120,14 @@ const LoginPage: React.FC = () => {
       }
 
       toast.success(data.status || "Login successful");
-      
+
       // Redirect based on role
       setTimeout(() => {
-        if (data.role === "INSTRUCTOR") {
-          navigate("/instructor-dashboard");
-        } else {
-          navigate("/home");
+        if (data.role === "INSTRUCTOR" || data.role === "STUDENT") {
+          window.location.href = "/home";
         }
       }, 1500);
+
 
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -157,7 +156,7 @@ const LoginPage: React.FC = () => {
         toastClassName="rounded-lg shadow-lg"
         progressClassName="bg-yellow-400"
       />
-      <motion.div 
+      <motion.div
         className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16"
         initial="hidden"
         animate="visible"
@@ -170,7 +169,7 @@ const LoginPage: React.FC = () => {
         }}
       >
         {/* Left Section - Login */}
-        <motion.div 
+        <motion.div
           className="flex flex-col items-center order-1 lg:order-1"
           variants={fadeInVariants}
         >
@@ -187,14 +186,14 @@ const LoginPage: React.FC = () => {
               </motion.button>
             </div>
 
-            <motion.h1 
+            <motion.h1
               className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 pt-8 lg:pt-0"
               variants={fadeInVariants}
             >
               Welcome Back to LearniFy!
             </motion.h1>
 
-            <motion.div 
+            <motion.div
               className="flex justify-center -space-x-2 sm:-space-x-3 mb-3 sm:mb-4"
               variants={fadeInVariants}
             >
@@ -208,15 +207,15 @@ const LoginPage: React.FC = () => {
                 />
               ))}
             </motion.div>
-            
-            <motion.p 
+
+            <motion.p
               className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 text-gray-700"
               variants={fadeInVariants}
             >
               Join <strong className="text-black">500,000+ learners</strong> worldwide advancing their skills
             </motion.p>
 
-            <motion.form 
+            <motion.form
               className="space-y-4 sm:space-y-4 md:space-y-5"
               variants={fadeInVariants}
               onSubmit={handleSubmit}
@@ -237,7 +236,7 @@ const LoginPage: React.FC = () => {
               {errors.email && (
                 <p className="-mt-3 text-sm text-red-500 text-left">{errors.email}</p>
               )}
-              
+
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
@@ -272,7 +271,7 @@ const LoginPage: React.FC = () => {
                     type="checkbox"
                     className="w-4 h-4 accent-black cursor-default"
                     checked={rememberMe}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     readOnly
                   />
                   Remember me
@@ -328,18 +327,18 @@ const LoginPage: React.FC = () => {
         </motion.div>
 
         {/* Right Section - Features */}
-        <motion.div 
+        <motion.div
           className="space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 order-2 lg:order-2 mb-8 lg:mb-0"
           variants={fadeInVariants}
         >
-          <motion.h2 
+          <motion.h2
             className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight text-gray-700"
             variants={fadeInVariants}
           >
             Advance your career <br className="hidden sm:block" /> with LearniFy courses.
           </motion.h2>
 
-          <motion.div 
+          <motion.div
             className="space-y-4 sm:space-y-6 md:space-y-8"
             variants={{
               hidden: { opacity: 0 },
@@ -368,7 +367,7 @@ const LoginPage: React.FC = () => {
                 description: "Access courses anytime with lifetime access to materials and updates."
               }
             ].map((feature, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 className="flex items-start gap-3 sm:gap-4 md:gap-5"
                 variants={fadeInVariants}

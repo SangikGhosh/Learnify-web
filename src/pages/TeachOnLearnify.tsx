@@ -223,7 +223,7 @@ const TeachOnLearnify: React.FC = () => {
                                         Become an Instructor
                                     </motion.a>
                                     <motion.a
-                                        href="/instructor-login"
+                                        href="/login"
                                         className="inline-flex px-6 py-3 text-lg font-bold text-gray-900 transition-all duration-200 bg-white border border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 font-pj hover:bg-gray-100 text-center justify-center"
                                         variants={buttonTapVariants}
                                         whileTap="tap"

@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
     if (isLoggedIn && !username) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${BASE_URL}/api/common/get-username`, {
+        const response = await fetch(`${BASE_URL}/api/common/user-details`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

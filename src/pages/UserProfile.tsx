@@ -59,7 +59,6 @@ const UserProfile: React.FC = () => {
         username: data.username,
         email: data.email || '',
         role: data.role,
-        joinDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       };
       // Save to state
       setUserData(userDataToStore);
@@ -75,7 +74,6 @@ const UserProfile: React.FC = () => {
         username: data.username,
         email: data.email || '',
         role: data.role,
-        joinDate: userDataToStore.joinDate
       };
       localStorage.setItem('userData', JSON.stringify(essentialData));
     } catch (err) {
@@ -281,12 +279,6 @@ const UserProfile: React.FC = () => {
                 <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">Account Type</label>
                 <div className="w-full p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm sm:text-base text-gray-900 capitalize">
                   {userData.role.toLowerCase()}
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">Member Since</label>
-                <div className="w-full p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm sm:text-base text-gray-900">
-                  {userData.joinDate}
                 </div>
               </div>
             </div>

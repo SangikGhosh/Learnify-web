@@ -1,34 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { imageMap } from './AvatarData';
 import LogoutModal from './LogoutModel';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { studentMenuItems, sectionTitles as studentSectionTitles } from './StudentMenuItem';
 import {
-  BookOpenIcon,
-  ShoppingCartIcon,
-  HeartIcon,
-  UserIcon,
-  PencilIcon,
-  AcademicCapIcon,
-  BellIcon,
-  ChatBubbleLeftRightIcon,
-  Cog6ToothIcon,
-  CreditCardIcon,
-  ClockIcon,
-  GiftIcon,
-  ReceiptPercentIcon,
-  QuestionMarkCircleIcon,
-  ArrowRightOnRectangleIcon
-} from '@heroicons/react/24/outline';
-
-interface MenuItem {
-  name: string;
-  href: string;
-  section: string;
-  icon: React.ReactNode;
-  action?: () => void;
-}
+  instructorMenuItems,
+  instructorSectionTitles,
+  type MenuItem
+} from './InstructorMenuItem';
+import { BASE_URL } from '../utils/config';
 
 interface UserDropdownProps {
   username: string;
@@ -38,41 +20,67 @@ interface UserDropdownProps {
 const UserDropdown: React.FC<UserDropdownProps> = ({ username, userInitial }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(studentMenuItems);
+  const [sectionTitles, setSectionTitles] = useState<Record<string, string>>(studentSectionTitles);
 
-  const menuItems: MenuItem[] = [
-    { name: 'My learning', href: '/dashboard/learning', section: 'learning', icon: <BookOpenIcon className="w-5 h-5" /> },
-    { name: 'My cart', href: '/dashboard/cart', section: 'learning', icon: <ShoppingCartIcon className="w-5 h-5" /> },
-    { name: 'Wishlist', href: '/dashboard/wishlist', section: 'learning', icon: <HeartIcon className="w-5 h-5" /> },
-    { name: 'My profile', href: '/dashboard/my-profile', section: 'profile', icon: <UserIcon className="w-5 h-5" /> },
-    { name: 'Edit profile', href: '/dashboard/edit-profile', section: 'profile', icon: <PencilIcon className="w-5 h-5" /> },
-    { name: 'Teach on Learnify', href: '/teach-on-learnify', section: 'teaching', icon: <AcademicCapIcon className="w-5 h-5" /> },
-    { name: 'Notifications', href: '/notifications', section: 'account', icon: <BellIcon className="w-5 h-5" /> },
-    { name: 'Messages', href: '/messages', section: 'account', icon: <ChatBubbleLeftRightIcon className="w-5 h-5" /> },
-    { name: 'Account settings', href: '/account-settings', section: 'settings', icon: <Cog6ToothIcon className="w-5 h-5" /> },
-    { name: 'Payment methods', href: '/payment-methods', section: 'settings', icon: <CreditCardIcon className="w-5 h-5" /> },
-    { name: 'Subscriptions', href: '/subscriptions', section: 'settings', icon: <ClockIcon className="w-5 h-5" /> },
-    { name: 'LearniFy credits', href: '/credits', section: 'settings', icon: <GiftIcon className="w-5 h-5" /> },
-    { name: 'Purchase history', href: '/purchase-history', section: 'settings', icon: <ReceiptPercentIcon className="w-5 h-5" /> },
-    { name: 'Help', href: '/help', section: 'support', icon: <QuestionMarkCircleIcon className="w-5 h-5" /> },
-    {
-      name: 'Log out',
-      href: '#',
-      section: 'logout',
-      icon: <ArrowRightOnRectangleIcon className="w-5 h-5" />,
-      action: () => setShowLogoutModal(true)
-    },
-  ];
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUserData = localStorage.getItem('userData');
+        if (storedUserData) {
+          const parsedData = JSON.parse(storedUserData);
+          setMenuBasedOnRole(parsedData.role);
+          return;
+        }
 
-  const sectionTitles: Record<string, string> = {
-    learning: 'LEARNING',
-    teaching: 'TEACHING',
-    account: 'ACCOUNT',
-    settings: 'SETTINGS',
-    profile: 'PROFILE',
-    support: 'SUPPORT'
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${BASE_URL}/api/common/user-details`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem('userData', JSON.stringify(data));
+          setMenuBasedOnRole(data.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const setMenuBasedOnRole = (role: string) => {
+    if (role === 'INSTRUCTOR') {
+      setMenuItems(instructorMenuItems);
+      setSectionTitles(instructorSectionTitles);
+    } else if (role === 'STUDENT') {
+      setMenuItems(studentMenuItems);
+      setSectionTitles(studentSectionTitles);
+    }
   };
 
-  const groupedItems = menuItems.reduce((acc, item) => {
+  // Create menu items with proper logout action
+  const getMenuItemsWithActions = () => {
+    return menuItems.map(item => {
+      if (item.name === 'Logout') {
+        return {
+          ...item,
+          action: () => setShowLogoutModal(true)
+        };
+      }
+      return item;
+    });
+  };
+
+  const groupedItems = getMenuItemsWithActions().reduce((acc: Record<string, MenuItem[]>, item) => {
     if (!acc[item.section]) {
       acc[item.section] = [];
     }
@@ -84,7 +92,9 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ username, userInitial }) =>
     setShowLogoutModal(false);
     toast.success('Logged out successfully', {
       onClose: () => {
-        window.location.reload();
+        localStorage.removeItem('userData');
+        localStorage.removeItem('token');
+        window.location.href = '/home';
       },
       autoClose: 1500
     });
@@ -153,8 +163,8 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ username, userInitial }) =>
                         key={item.name}
                         href={item.href}
                         onClick={(e) => {
+                          e.preventDefault();
                           if (item.action) {
-                            e.preventDefault();
                             item.action();
                           }
                         }}

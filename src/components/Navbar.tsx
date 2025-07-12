@@ -10,25 +10,13 @@ import UserDropdown from "./UserDropdown";
 import LogoutModal from "./LogoutModel";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { studentMenuItems, sectionTitles as studentSectionTitles } from './StudentMenuItem';
+import { instructorMenuItems, instructorSectionTitles, type MenuItem } from './InstructorMenuItem';
 import {
-  BookOpenIcon,
-  ShoppingCartIcon,
-  HeartIcon,
-  PencilIcon,
-  AcademicCapIcon,
-  BellIcon,
-  ChatBubbleLeftRightIcon,
-  Cog6ToothIcon,
-  CreditCardIcon,
-  ClockIcon,
-  GiftIcon,
-  ReceiptPercentIcon,
-  QuestionMarkCircleIcon,
   ArrowRightOnRectangleIcon,
   HomeIcon,
   MagnifyingGlassIcon,
   ShieldCheckIcon,
-  TrashIcon,
 } from '@heroicons/react/24/outline';
 
 const Navbar: React.FC = () => {
@@ -39,12 +27,24 @@ const Navbar: React.FC = () => {
   const [visibleItems, setVisibleItems] = useState<number>(3);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
   const [userInitial, setUserInitial] = useState<string>("");
-  const isLoggedIn = useAuth();
   const [username, setUsername] = useState(localStorage.getItem('username') || '');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [sectionTitles, setSectionTitles] = useState<Record<string, string>>({});
 
   const joinButtonRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
+  const isLoggedIn = useAuth();
+
+  const setMenuBasedOnRole = (role: string) => {
+    if (role === 'INSTRUCTOR') {
+      setMenuItems(instructorMenuItems);
+      setSectionTitles(instructorSectionTitles);
+    } else if (role === 'STUDENT') {
+      setMenuItems(studentMenuItems);
+      setSectionTitles(studentSectionTitles);
+    }
+  };
 
   const fetchUsername = useCallback(async () => {
     if (isLoggedIn && !username) {
@@ -75,6 +75,40 @@ const Navbar: React.FC = () => {
   }, [isLoggedIn, username]);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUserData = localStorage.getItem('userData');
+        if (storedUserData) {
+          const parsedData = JSON.parse(storedUserData);
+          setMenuBasedOnRole(parsedData.role);
+          return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${BASE_URL}/api/common/user-details`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem('userData', JSON.stringify(data));
+          setMenuBasedOnRole(data.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 10;
       if (scrolled && window.innerWidth < 1024) {
@@ -96,27 +130,30 @@ const Navbar: React.FC = () => {
       }
     };
 
-
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleResize);
     fetchUsername();
 
     handleResize();
 
-    if (isMenuOpen) {
+    // Improved scroll lock for mobile menu
+    if (isMenuOpen && window.innerWidth < 1024) {
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
     } else {
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
     }
 
     return () => {
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
-
-
-
   }, [isLoggedIn, isMenuOpen, fetchUsername]);
 
   const toggleMenu = () => {
@@ -133,8 +170,6 @@ const Navbar: React.FC = () => {
     setIsOthersOpen(!isOthersOpen);
   };
 
-
-
   const handleSuccessfulLogout = () => {
     setShowLogoutModal(false);
     toast.success('Logged out successfully', {
@@ -144,8 +179,6 @@ const Navbar: React.FC = () => {
       autoClose: 1500
     });
   };
-
-
 
   const menuVariants = {
     open: {
@@ -230,13 +263,18 @@ const Navbar: React.FC = () => {
   const visibleNavItems = navItems.slice(0, visibleItems);
   const hiddenNavItems = navItems.slice(visibleItems);
 
+  const groupedMenuItems = menuItems.reduce((acc, item) => {
+    if (!acc[item.section]) {
+      acc[item.section] = [];
+    }
+    acc[item.section].push(item);
+    return acc;
+  }, {} as Record<string, MenuItem[]>);
+
   return (
-    <header
-      className={`fixed w-full z-50 transition-all duration-300 bg-white bg-opacity-30`}
-    >
+    <header className={`fixed w-full z-50 transition-all duration-300 bg-white bg-opacity-30`}>
       <div className="px-4 mx-auto sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo - Hidden when search is open on mobile */}
           <motion.div
             className="flex-shrink-0"
             animate={{
@@ -245,7 +283,7 @@ const Navbar: React.FC = () => {
             }}
             transition={{ duration: 0.2 }}
           >
-            <a href="/home" title="" className="flex">
+            <a href="/home" className="flex">
               <img
                 className="w-auto h-12"
                 src="../../src/assets/Images/Learnify.png"
@@ -254,7 +292,6 @@ const Navbar: React.FC = () => {
             </a>
           </motion.div>
 
-          {/* Mobile Search and Menu Buttons */}
           <div className="flex items-center lg:hidden space-x-2">
             <motion.button
               type="button"
@@ -303,16 +340,13 @@ const Navbar: React.FC = () => {
             </motion.button>
           </div>
 
-          {/* Explore Dropdown - Hidden when search is open on mobile */}
           <div className="hidden lg:flex lg:items-center font-semibold lg:justify-center lg:space-x-10 pr-4">
             <h1 className="text-lg text-black transition-all duration-200 hover:text-opacity-80"><ExploreDropdown /></h1>
           </div>
 
-          {/* Searchbar components */}
           <Searchbar isSearchOpen={isSearchOpen} toggleSearch={toggleSearch} isMobile />
           <Searchbar isSearchOpen={isSearchOpen} toggleSearch={toggleSearch} />
 
-          {/* Desktop Navigation */}
           <div className="hidden lg:flex lg:items-center font-semibold lg:justify-center lg:space-x-4 pr-4" ref={navRef}>
             {visibleNavItems.map((item) => (
               <a
@@ -370,7 +404,6 @@ const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Join Now Button or User Profile */}
           {!isLoggedIn ? (
             <div
               className="hidden lg:block relative"
@@ -440,7 +473,6 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Mobile Navigation - Full Screen Overlay */}
         <AnimatePresence>
           {isMenuOpen && (
             <>
@@ -489,7 +521,6 @@ const Navbar: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Right arrow SVG positioned on the right edge */}
                       <div className="flex items-center justify-center ml-2">
                         <svg
                           className="w-5 h-5 text-gray-400"
@@ -564,153 +595,50 @@ const Navbar: React.FC = () => {
                       <HomeIcon className="w-5 h-5" />
                       Home
                     </motion.a>
-                    {isLoggedIn && (
-                      <>
-                        <motion.a
-                          href="#"
-                          className="flex items-center px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50 gap-2"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <BookOpenIcon className="w-5 h-5" />
-                          My Learning
-                        </motion.a>
-
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <PencilIcon className="w-5 h-5" />
-                          Edit Profile
-                        </motion.a>
-                      </>
-                    )}
                     <motion.a
-                      href="#"
+                      href="/privacy"
                       className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
                       onClick={() => setIsMenuOpen(false)}
                       variants={menuItemVariants}
                     >
-                      <ShoppingCartIcon className="w-5 h-5" />
-                      My Cart
+                      <ShieldCheckIcon className="w-5 h-5" />
+                      Teach on LearniFy
                     </motion.a>
-                    {isLoggedIn && (
-                      <>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <HeartIcon className="w-5 h-5" />
-                          Wishlist
-                        </motion.a>
-                      </>
-                    )}
-                    <motion.a
-                      href="#"
-                      className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                      onClick={() => setIsMenuOpen(false)}
-                      variants={menuItemVariants}
-                    >
-                      <AcademicCapIcon className="w-5 h-5" />
-                      Teach on Learnify
-                    </motion.a>
+
+                    {isLoggedIn && Object.entries(groupedMenuItems).map(([section, items]) => (
+                      <React.Fragment key={section}>
+                        {section !== 'logout' && (
+                          <>
+                            <div className="px-3 pt-4 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                              {sectionTitles[section]}
+                            </div>
+                            {items.map((item) => (
+                              <motion.a
+                                key={item.name}
+                                href={item.href}
+                                className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                                onClick={() => {
+                                  setIsMenuOpen(false);
+                                  if (item.action) item.action();
+                                }}
+                                variants={menuItemVariants}
+                              >
+                                {item.icon}
+                                {item.name}
+                              </motion.a>
+                            ))}
+                          </>
+                        )}
+                      </React.Fragment>
+                    ))}
+
+                    <div className="px-3 pt-4 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      TEACH
+                    </div>
 
                     {isLoggedIn && (
                       <>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <BellIcon className="w-5 h-5" />
-                          Notifications
-                        </motion.a>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <ChatBubbleLeftRightIcon className="w-5 h-5" />
-                          Messages
-                        </motion.a>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <Cog6ToothIcon className="w-5 h-5" />
-                          Account Security
-                        </motion.a>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <CreditCardIcon className="w-5 h-5" />
-                          Payment Methods
-                        </motion.a>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <ReceiptPercentIcon className="w-5 h-5" />
-                          Subscriptions
-                        </motion.a>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <GiftIcon className="w-5 h-5" />
-                          LearniFy Credits
-                        </motion.a>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <ClockIcon className="w-5 h-5" />
-                          Purchese History
-                        </motion.a>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <ShieldCheckIcon className="w-5 h-5" />
-                          Privacy
-                        </motion.a>
-                        <motion.a
-                          href="#"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <QuestionMarkCircleIcon className="w-5 h-5" />
-                          Help & Support
-                        </motion.a>
-                        <motion.a
-                          href="/dashboard/delete-account"
-                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                          variants={menuItemVariants}
-                        >
-                          <TrashIcon className="w-5 h-5" />
-                          Delete Account
-                        </motion.a>
+                        <div className="border-t border-gray-200 my-2"></div>
                         <motion.button
                           className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-red-500 rounded-md hover:bg-gray-50 w-full text-left"
                           onClick={() => setShowLogoutModal(true)}
@@ -719,13 +647,13 @@ const Navbar: React.FC = () => {
                           <ArrowRightOnRectangleIcon className="w-5 h-5 text-red-500" />
                           Logout
                         </motion.button>
-                        <LogoutModal
-                          show={showLogoutModal}
-                          onClose={() => setShowLogoutModal(false)}
-                          onLogoutSuccess={handleSuccessfulLogout}
-                        />
                       </>
                     )}
+                    <LogoutModal
+                      show={showLogoutModal}
+                      onClose={() => setShowLogoutModal(false)}
+                      onLogoutSuccess={handleSuccessfulLogout}
+                    />
                   </div>
                 </div>
               </motion.div>

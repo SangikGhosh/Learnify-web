@@ -26,7 +26,9 @@ import {
   QuestionMarkCircleIcon,
   ArrowRightOnRectangleIcon,
   HomeIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  ShieldCheckIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
 
 const Navbar: React.FC = () => {
@@ -459,7 +461,10 @@ const Navbar: React.FC = () => {
               >
                 <div className="flex flex-col h-full p-4">
                   {isLoggedIn && (
-                    <div className="flex items-center p-4 border-b border-gray-200">
+                    <div
+                      className="flex items-center p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50"
+                      onClick={() => window.location.href = 'dashboard/my-profile'}
+                    >
                       <div className="relative w-18 h-18">
                         <img
                           src={
@@ -471,13 +476,30 @@ const Navbar: React.FC = () => {
                         <span className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 border-3 border-white rounded-full"></span>
                       </div>
 
-                      <div className="flex flex-col items-start">
-                        <span className="ml-3 text-sm">
-                          Welcome Back,
-                        </span>
-                        <span className="ml-3 text-lg font-semibold">
-                          {username.length > 15 ? `${username.substring(0, 12)}...` : username}
-                        </span>
+                      <div className="flex flex-col items-start ml-3 flex-grow">
+                        <div className="flex items-center">
+                          <span className="text-sm">
+                            Welcome Back,
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-lg font-semibold">
+                            {username.length > 15 ? `${username.substring(0, 12)}...` : username}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Right arrow SVG positioned on the right edge */}
+                      <div className="flex items-center justify-center ml-2">
+                        <svg
+                          className="w-5 h-5 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </div>
                     </div>
                   )}
@@ -624,7 +646,7 @@ const Navbar: React.FC = () => {
                           variants={menuItemVariants}
                         >
                           <Cog6ToothIcon className="w-5 h-5" />
-                          Account Settings
+                          Account Security
                         </motion.a>
                         <motion.a
                           href="#"
@@ -641,7 +663,7 @@ const Navbar: React.FC = () => {
                           onClick={() => setIsMenuOpen(false)}
                           variants={menuItemVariants}
                         >
-                          <ClockIcon className="w-5 h-5" />
+                          <ReceiptPercentIcon className="w-5 h-5" />
                           Subscriptions
                         </motion.a>
                         <motion.a
@@ -659,8 +681,17 @@ const Navbar: React.FC = () => {
                           onClick={() => setIsMenuOpen(false)}
                           variants={menuItemVariants}
                         >
-                          <ReceiptPercentIcon className="w-5 h-5" />
+                          <ClockIcon className="w-5 h-5" />
                           Purchese History
+                        </motion.a>
+                        <motion.a
+                          href="#"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <ShieldCheckIcon className="w-5 h-5" />
+                          Privacy
                         </motion.a>
                         <motion.a
                           href="#"
@@ -670,6 +701,15 @@ const Navbar: React.FC = () => {
                         >
                           <QuestionMarkCircleIcon className="w-5 h-5" />
                           Help & Support
+                        </motion.a>
+                        <motion.a
+                          href="/dashboard/delete-account"
+                          className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                          variants={menuItemVariants}
+                        >
+                          <TrashIcon className="w-5 h-5" />
+                          Delete Account
                         </motion.a>
                         <motion.button
                           className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-red-500 rounded-md hover:bg-gray-50 w-full text-left"

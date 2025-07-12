@@ -31,7 +31,7 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ show, onClose, onLogoutSucces
 
       // Clear storage
       localStorage.removeItem('token');
-      sessionStorage.removeItem('token');
+      localStorage.removeItem('userData');
       localStorage.removeItem('username');
 
       onLogoutSuccess();
@@ -104,17 +104,16 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ show, onClose, onLogoutSucces
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <button
                     onClick={handleLogout}
-                    className={`py-2.5 px-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white rounded-lg font-medium sm:font-semibold transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center ${
-                      isLoggingOut && 'opacity-70 cursor-not-allowed'
-                    }`}
+                    className={`py-2.5 px-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white rounded-lg font-medium sm:font-semibold transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center ${isLoggingOut && 'opacity-70 cursor-not-allowed'
+                      }`}
                     disabled={isLoggingOut}
                   >
                     {isLoggingOut ? (
                       <>
-                        <svg 
-                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          fill="none" 
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
                           viewBox="0 0 24 24"
                         >
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

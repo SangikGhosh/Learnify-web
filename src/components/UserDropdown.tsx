@@ -40,11 +40,11 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ username, userInitial }) =>
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const menuItems: MenuItem[] = [
-    { name: 'My learning', href: '/learning', section: 'learning', icon: <BookOpenIcon className="w-5 h-5" /> },
-    { name: 'My cart', href: '/cart', section: 'learning', icon: <ShoppingCartIcon className="w-5 h-5" /> },
-    { name: 'Wishlist', href: '/wishlist', section: 'learning', icon: <HeartIcon className="w-5 h-5" /> },
-    { name: 'My profile', href: '/public-profile', section: 'profile', icon: <UserIcon className="w-5 h-5" /> },
-    { name: 'Edit profile', href: '/edit-profile', section: 'profile', icon: <PencilIcon className="w-5 h-5" /> },
+    { name: 'My learning', href: '/dashboard/learning', section: 'learning', icon: <BookOpenIcon className="w-5 h-5" /> },
+    { name: 'My cart', href: '/dashboard/cart', section: 'learning', icon: <ShoppingCartIcon className="w-5 h-5" /> },
+    { name: 'Wishlist', href: '/dashboard/wishlist', section: 'learning', icon: <HeartIcon className="w-5 h-5" /> },
+    { name: 'My profile', href: '/dashboard/my-profile', section: 'profile', icon: <UserIcon className="w-5 h-5" /> },
+    { name: 'Edit profile', href: '/dashboard/edit-profile', section: 'profile', icon: <PencilIcon className="w-5 h-5" /> },
     { name: 'Teach on Learnify', href: '/teach-on-learnify', section: 'teaching', icon: <AcademicCapIcon className="w-5 h-5" /> },
     { name: 'Notifications', href: '/notifications', section: 'account', icon: <BellIcon className="w-5 h-5" /> },
     { name: 'Messages', href: '/messages', section: 'account', icon: <ChatBubbleLeftRightIcon className="w-5 h-5" /> },

@@ -1,75 +1,105 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  UserIcon,
-  PencilIcon,
-  BellIcon,
-  ChatBubbleLeftRightIcon,
-  ShieldCheckIcon,
-  ReceiptPercentIcon,
-  CreditCardIcon,
-  GiftIcon,
-  ClockIcon,
-  BookOpenIcon,
-  ShoppingCartIcon,
-  HeartIcon,
-  TrashIcon,
-  ArrowRightOnRectangleIcon,
-  QuestionMarkCircleIcon,
-  Cog6ToothIcon,
-  HomeIcon
-} from '@heroicons/react/24/outline';
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import LogoutModal from '../components/LogoutModel';
 import Navbar from '../components/Navbar';
+import { BASE_URL } from '../utils/config';
+import { instructorMenuItems, instructorSectionTitles } from '../components/InstructorMenuItem';
+import { studentMenuItems } from '../components/StudentMenuItem';
 
-const navigationItems = [
-  { name: 'Home', href: '/home', icon: HomeIcon },
-  { name: 'My learnings', href: '/dashboard/my-learnings', icon: BookOpenIcon },
-  { name: 'My Profile', href: '/dashboard/my-profile', icon: UserIcon },
-  { name: 'Edit Profile', href: '/dashboard/edit-profile', icon: PencilIcon },
-  { name: 'My cart', href: '/dashboard/my-cart', icon: ShoppingCartIcon },
-  { name: 'Wishlist', href: '/dashboard/wishlist', icon: HeartIcon },
-  { name: 'Notification', href: '/dashboard/notifications', icon: BellIcon },
-  { name: 'Messages', href: '/dashboard/community-groups', icon: ChatBubbleLeftRightIcon },
-  { name: 'Account security', href: '/dashboard/account-security', icon: Cog6ToothIcon },
-  { name: 'Subscriptions', href: '/dashboard/subscriptions', icon: ReceiptPercentIcon },
-  { name: 'Payment Methods', href: '/dashboard/payment-methods', icon: CreditCardIcon },
-  { name: 'LearniFy Credits', href: '/dashboard/learnify-credits', icon: GiftIcon },
-  { name: 'Purchase History', href: '/dashboard/purchase-history', icon: ClockIcon },
-  { name: 'Privacy', href: '/dashboard/privacy', icon: ShieldCheckIcon },
-  { name: 'Help & support', href: '/dashboard/help-support', icon: QuestionMarkCircleIcon },
-  { name: 'Delete Account', href: '/dashboard/delete-account', icon: TrashIcon },
-  { name: 'Logout', href: '#', icon: ArrowRightOnRectangleIcon, isAction: true }
-];
+interface MenuItem {
+  name: string;
+  href: string;
+  section: string;
+  icon: React.ReactNode;
+  action?: () => void;
+}
 
 const SidebarLayout: React.FC = () => {
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [sectionTitles, setSectionTitles] = useState<Record<string, string>>({});
+  const [groupedItems, setGroupedItems] = useState<Record<string, MenuItem[]>>({});
+  const [userName, setUserName] = useState('');
 
-  const handleLogoutClick = (item: any) => {
-    if (item.isAction) {
-      setShowLogoutModal(true);
-      return;
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // In a real app, you would fetch this from your API
+        const storedUserData = localStorage.getItem('userData');
+        if (storedUserData) {
+          const parsedData = JSON.parse(storedUserData);
+          setMenuBasedOnRole(parsedData.role);
+          setUserName(parsedData.name || 'User');
+          return;
+        }
+
+        // Mock API call - replace with your actual API call
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        // This is just a mock - replace with your actual API endpoint
+        const response = await fetch(`${BASE_URL}/api/common/user-details`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem('userData', JSON.stringify(data));
+          setMenuBasedOnRole(data.role);
+          setUserName(data.name || 'User');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const setMenuBasedOnRole = (role: string) => {
+    if (role === 'INSTRUCTOR') {
+      setMenuItems(instructorMenuItems);
+      setSectionTitles(instructorSectionTitles);
+    } else {
+      // Default to student menu
+      setMenuItems(studentMenuItems);
+      setSectionTitles(sectionTitles);
     }
   };
 
-  const handleLogoutSuccess = () => {
-    // Clear any user data from storage
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('token');
-    localStorage.removeItem('username');
+  useEffect(() => {
+    // Group menu items by section
+    const grouped: Record<string, MenuItem[]> = {};
+    menuItems.forEach(item => {
+      if (!grouped[item.section]) {
+        grouped[item.section] = [];
+      }
+      grouped[item.section].push(item);
+    });
+    setGroupedItems(grouped);
+  }, [menuItems]);
 
-    // Redirect to login page
+  const handleLogoutSuccess = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    sessionStorage.removeItem('token');
     window.location.href = "/home";
   };
 
+
+
   return (
     <>
-    <div className='flex md:hidden'>
-      <Navbar />
-    </div>
+      <div className='flex md:hidden'>
+        <Navbar />
+      </div>
       <div className="flex flex-1 bg-gray-50 h-screen overflow-hidden">
         {/* Sidebar */}
         <div className="hidden md:flex md:w-72 md:flex-col">
@@ -104,47 +134,46 @@ const SidebarLayout: React.FC = () => {
                   />
                 </div>
               </div>
-
-              <div className="px-4 mt-6">
-                <hr className="border-gray-200" />
-              </div>
             </div>
 
             {/* Scrollable navigation items */}
             <div className="flex-1 px-3 overflow-y-auto">
-              <div className="space-y-1">
-                <nav className="flex-1 space-y-1">
-                  {navigationItems.map((item) => (
-                    <div
-                      key={item.name}
-                      onClick={() => handleLogoutClick(item)}
-                    >
-                      {item.isAction ? (
-                        <div
-                          className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group cursor-pointer ${location.pathname === item.href
-                            ? 'text-white bg-black'
-                            : 'text-red-600 hover:bg-red-100'
-                            }`}
-                        >
-                          <item.icon className="flex-shrink-0 w-5 h-5 mr-4" />
-                          {item.name}
-                        </div>
-                      ) : (
-                        <Link
-                          to={item.href}
-                          className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group ${location.pathname === item.href
-                            ? 'text-white bg-black'
-                            : 'text-gray-900 hover:bg-gray-100'
-                            }`}
-                        >
-                          <item.icon className="flex-shrink-0 w-5 h-5 mr-4" />
-                          {item.name}
-                        </Link>
-                      )}
-                    </div>
-                  ))}
-                </nav>
-              </div>
+              {Object.keys(groupedItems).map((section) => (
+                <div key={section} className="mt-6">
+                  <h3 className="px-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                    {sectionTitles[section]}
+                  </h3>
+                  <nav className="mt-2 space-y-1">
+                    {groupedItems[section].map((item) => (
+                      <div key={`${section}-${item.name}`}>
+                        {item.name === 'Logout' ? (
+                          <div
+                            onClick={() => setShowLogoutModal(true)}
+                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group cursor-pointer ${location.pathname === item.href
+                              ? 'text-white bg-black'
+                              : 'text-red-600 hover:bg-red-100'
+                              }`}
+                          >
+                            {item.icon}
+                            <span className="ml-4">{item.name}</span>
+                          </div>
+                        ) : (
+                          <Link
+                            to={item.href}
+                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group ${location.pathname === item.href
+                              ? 'text-white bg-black'
+                              : 'text-gray-900 hover:bg-gray-100'
+                              }`}
+                          >
+                            {item.icon}
+                            <span className="ml-4">{item.name}</span>
+                          </Link>
+                        )}
+                      </div>
+                    ))}
+                  </nav>
+                </div>
+              ))}
             </div>
 
             {/* Fixed user profile at bottom */}
@@ -159,7 +188,7 @@ const SidebarLayout: React.FC = () => {
                     src="https://landingfoliocom.imgix.net/store/collection/clarity-dashboard/images/vertical-menu/2/avatar-male.png"
                     alt="User avatar"
                   />
-                  Jacob Jones
+                  {userName || 'User'}
                 </div>
                 <svg
                   className="w-5 h-5 ml-auto"
@@ -179,6 +208,7 @@ const SidebarLayout: React.FC = () => {
             </div>
           </div>
         </div>
+
         {/* Main Content */}
         <div className="flex flex-col flex-1 overflow-hidden">
           <main className="flex-1 overflow-y-auto">

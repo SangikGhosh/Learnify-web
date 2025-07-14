@@ -63,22 +63,39 @@ function App() {
 
         {/* Dashboard routes with sidebar layout (no navbar/footer) */}
         <Route path="/dashboard/*" element={<SidebarLayout />}>
+          {/* Common routes */}
           <Route path="my-profile" element={<UserProfile />} />
-          <Route path="edit-profile" element={<h1>this is edit profile</h1>} />
-          <Route path="notifications" element={<h1>this is Notificsation</h1>} />
-          <Route path="community-groups" element={<h1>this is community group</h1>} />
-          <Route path="account-security" element={<h1>this is account sec</h1>} />
-          <Route path="subscriptions" element={<h1>this is subscription</h1>} />
-          <Route path="payment-methods" element={<h1>this is payment method</h1>} />
-          <Route path="learnify-credits" element={<h1>this is learnify credits</h1>} />
-          <Route path="purchase-history" element={<h1>this is purchese history</h1>} />
-          <Route path="privacy" element={<h1>this is privecy</h1>} />
-          <Route path="help-support" element={<h1>this is help & Support</h1>} />
-          <Route path="my-learnings" element={<h1>this is My learninigs</h1>} />
-          <Route path="my-cart" element={<h1>this is my cart</h1>} />
-          <Route path="wishlist" element={<h1>this is wishlist</h1>} />
-          <Route path="delete-account" element={<h1>this is deleyte account</h1>} />
-          <Route path="logout" />
+          <Route path="edit-profile" element={<h1>Edit Profile</h1>} />
+          <Route path="notifications" element={<h1>Notifications</h1>} />
+          
+          {/* Student-specific routes */}
+          <Route path="my-learnings" element={<h1>My Learnings</h1>} />
+          <Route path="my-cart" element={<h1>My Cart</h1>} />
+          <Route path="wishlist" element={<h1>Wishlist</h1>} />
+          <Route path="account-security" element={<h1>Account Security</h1>} />
+          <Route path="subscriptions" element={<h1>Subscriptions</h1>} />
+          <Route path="payment-methods" element={<h1>Payment Methods</h1>} />
+          <Route path="learnify-credits" element={<h1>Learnify Credits</h1>} />
+          <Route path="purchase-history" element={<h1>Purchase History</h1>} />
+          <Route path="help-support" element={<h1>Help & Support</h1>} />
+          <Route path="delete-account" element={<h1>Delete Account</h1>} />
+          
+          {/* Instructor-specific routes */}
+          <Route path="create-courses" element={<h1>Create Courses</h1>} />
+          <Route path="courses" element={<h1>My Courses</h1>} />
+          <Route path="edit-courses" element={<h1>Edit Courses</h1>} />
+          <Route path="resources" element={<h1>Resources</h1>} />
+          <Route path="reviews" element={<h1>Reviews</h1>} />
+          <Route path="analytics" element={<h1>Analytics</h1>} />
+          <Route path="enrollments" element={<h1>Enrollments</h1>} />
+          <Route path="earnings" element={<h1>Earnings</h1>} />
+          <Route path="withdrawals" element={<h1>Withdrawals</h1>} />
+          <Route path="payout-settings" element={<h1>Payout Settings</h1>} />
+          <Route path="promotions" element={<h1>Promotions</h1>} />
+          <Route path="messages" element={<h1>Messages</h1>} />
+          <Route path="performance" element={<h1>Performance</h1>} />
+          <Route path="support" element={<h1>Support</h1>} />
+          
           {/* Default dashboard route */}
           <Route index element={<UserProfile />} />
         </Route>

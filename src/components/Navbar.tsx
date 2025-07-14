@@ -596,7 +596,7 @@ const Navbar: React.FC = () => {
                       Home
                     </motion.a>
                     <motion.a
-                      href="/privacy"
+                      href="/teach-on-learnify"
                       className="flex items-center gap-2 px-3 py-3 text-lg font-medium text-black rounded-md hover:bg-gray-50"
                       onClick={() => setIsMenuOpen(false)}
                       variants={menuItemVariants}
@@ -631,10 +631,6 @@ const Navbar: React.FC = () => {
                         )}
                       </React.Fragment>
                     ))}
-
-                    <div className="px-3 pt-4 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      TEACH
-                    </div>
 
                     {isLoggedIn && (
                       <>

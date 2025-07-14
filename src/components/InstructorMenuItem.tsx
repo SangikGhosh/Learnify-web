@@ -28,28 +28,28 @@ export interface MenuItem {
 
 export const instructorMenuItems: MenuItem[] = [
   // Course Management
-  { name: 'Create New Course', href: '/instructor/courses/create', section: 'course-management', icon: <PlusCircleIcon className="w-5 h-5" /> },
-  { name: 'My Courses', href: '/instructor/courses', section: 'course-management', icon: <BookOpenIcon className="w-5 h-5" /> },
-  { name: 'Edit Course', href: '/instructor/courses/edit', section: 'course-management', icon: <PencilIcon className="w-5 h-5" /> },
-  { name: 'Upload Resources', href: '/instructor/resources', section: 'course-management', icon: <FolderIcon className="w-5 h-5" /> },
-  { name: 'Reviews & Ratings', href: '/instructor/reviews', section: 'course-management', icon: <StarIcon className="w-5 h-5" /> },
+  { name: 'Create New Course', href: '/dashboard/create-courses', section: 'course-management', icon: <PlusCircleIcon className="w-5 h-5" /> },
+  { name: 'My Courses', href: '/dashboard/courses', section: 'course-management', icon: <BookOpenIcon className="w-5 h-5" /> },
+  { name: 'Edit Course', href: '/dashboard/edit-courses', section: 'course-management', icon: <PencilIcon className="w-5 h-5" /> },
+  { name: 'Upload Resources', href: '/dashboard/resources', section: 'course-management', icon: <FolderIcon className="w-5 h-5" /> },
+  { name: 'Reviews & Ratings', href: '/dashboard/reviews', section: 'course-management', icon: <StarIcon className="w-5 h-5" /> },
 
   // Insights
-  { name: 'Course Analytics', href: '/instructor/analytics', section: 'insights', icon: <ChartBarIcon className="w-5 h-5" /> },
-  { name: 'Student Enrollments', href: '/instructor/enrollments', section: 'insights', icon: <UserGroupIcon className="w-5 h-5" /> },
-  { name: 'Earnings', href: '/instructor/earnings', section: 'insights', icon: <CurrencyDollarIcon className="w-5 h-5" /> },
+  { name: 'Course Analytics', href: '/dashboard/analytics', section: 'insights', icon: <ChartBarIcon className="w-5 h-5" /> },
+  { name: 'Student Enrollments', href: '/dashboard/enrollments', section: 'insights', icon: <UserGroupIcon className="w-5 h-5" /> },
+  { name: 'Earnings', href: '/dashboard/earnings', section: 'insights', icon: <CurrencyDollarIcon className="w-5 h-5" /> },
 
   // Payments
-  { name: 'Withdrawals', href: '/instructor/withdrawals', section: 'payments', icon: <BanknotesIcon className="w-5 h-5" /> },
-  { name: 'Payout Settings', href: '/instructor/payout-settings', section: 'payments', icon: <CreditCardIcon className="w-5 h-5" /> },
-  { name: 'Promotions & Coupons', href: '/instructor/promotions', section: 'payments', icon: <TicketIcon className="w-5 h-5" /> },
+  { name: 'Withdrawals', href: '/dashboard/withdrawals', section: 'payments', icon: <BanknotesIcon className="w-5 h-5" /> },
+  { name: 'Payout Settings', href: '/dashboard/payout-settings', section: 'payments', icon: <CreditCardIcon className="w-5 h-5" /> },
+  { name: 'Promotions & Coupons', href: '/dashboard/promotions', section: 'payments', icon: <TicketIcon className="w-5 h-5" /> },
 
   // Profile & Support
-  { name: 'Instructor Profile', href: '/instructor/profile', section: 'profile-support', icon: <UserIcon className="w-5 h-5" /> },
-  { name: 'Messages', href: '/instructor/messages', section: 'profile-support', icon: <ChatBubbleLeftRightIcon className="w-5 h-5" /> },
-  { name: 'Notifications', href: '/instructor/notifications', section: 'profile-support', icon: <BellIcon className="w-5 h-5" /> },
-  { name: 'Performance Dashboard', href: '/instructor/performance', section: 'profile-support', icon: <PresentationChartLineIcon className="w-5 h-5" /> },
-  { name: 'Help & Support', href: '/instructor/support', section: 'profile-support', icon: <QuestionMarkCircleIcon className="w-5 h-5" /> },
+  { name: 'Instructor Profile', href: '/dashboard/my-profile', section: 'profile-support', icon: <UserIcon className="w-5 h-5" /> },
+  { name: 'Messages', href: '/dashboard/messages', section: 'profile-support', icon: <ChatBubbleLeftRightIcon className="w-5 h-5" /> },
+  { name: 'Notifications', href: '/dashboard/notifications', section: 'profile-support', icon: <BellIcon className="w-5 h-5" /> },
+  { name: 'Performance Dashboard', href: '/dashboard/performance', section: 'profile-support', icon: <PresentationChartLineIcon className="w-5 h-5" /> },
+  { name: 'Help & Support', href: '/dashboard/support', section: 'profile-support', icon: <QuestionMarkCircleIcon className="w-5 h-5" /> },
 
   // Logout
   {

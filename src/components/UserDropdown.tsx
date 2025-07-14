@@ -162,8 +162,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ username, userInitial }) =>
                       <a
                         key={item.name}
                         href={item.href}
-                        onClick={(e) => {
-                          e.preventDefault();
+                        onClick={() => {
                           if (item.action) {
                             item.action();
                           }

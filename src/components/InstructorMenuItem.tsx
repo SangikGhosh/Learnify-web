@@ -45,7 +45,8 @@ export const instructorMenuItems: MenuItem[] = [
   { name: 'Promotions & Coupons', href: '/dashboard/promotions', section: 'payments', icon: <TicketIcon className="w-5 h-5" /> },
 
   // Profile & Support
-  { name: 'Instructor Profile', href: '/dashboard/my-profile', section: 'profile-support', icon: <UserIcon className="w-5 h-5" /> },
+  { name: 'My Profile', href: '/dashboard/my-profile', section: 'profile-support', icon: <UserIcon className="w-5 h-5" /> },
+  { name: 'Edit profile', href: '/dashboard/edit-profile', section: 'profile', icon: <PencilIcon className="w-5 h-5" /> },
   { name: 'Messages', href: '/dashboard/messages', section: 'profile-support', icon: <ChatBubbleLeftRightIcon className="w-5 h-5" /> },
   { name: 'Notifications', href: '/dashboard/notifications', section: 'profile-support', icon: <BellIcon className="w-5 h-5" /> },
   { name: 'Performance Dashboard', href: '/dashboard/performance', section: 'profile-support', icon: <PresentationChartLineIcon className="w-5 h-5" /> },

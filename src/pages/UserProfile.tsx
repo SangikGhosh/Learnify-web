@@ -12,6 +12,14 @@ interface UserData {
   coursesCompleted?: number;
   enrolledCourses?: number;
   progress?: number;
+  SocialLinks?: {
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+    github?: string;
+    website?: string;
+    [key: string]: string | undefined;
+  };
 }
 
 const UserProfile: React.FC = () => {
@@ -59,6 +67,7 @@ const UserProfile: React.FC = () => {
         username: data.username,
         email: data.email || '',
         role: data.role,
+        SocialLinks: data.SocialLinks || {}
       };
       // Save to state
       setUserData(userDataToStore);
@@ -74,6 +83,7 @@ const UserProfile: React.FC = () => {
         username: data.username,
         email: data.email || '',
         role: data.role,
+        SocialLinks: data.SocialLinks || {}
       };
       localStorage.setItem('userData', JSON.stringify(essentialData));
     } catch (err) {
@@ -120,6 +130,35 @@ const UserProfile: React.FC = () => {
         when: "beforeChildren"
       }
     }
+  };
+
+  const renderSocialLinks = () => {
+    if (!userData?.SocialLinks) return null;
+
+    const socialLinks = userData.SocialLinks;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const availableLinks = Object.entries(socialLinks).filter(([_, value]) => value);
+
+    if (availableLinks.length === 0) return null;
+
+    return (
+      <div className="mt-4 sm:mt-6">
+        <h3 className="text-sm font-medium text-gray-500 mb-2">Social Links</h3>
+        <div className="flex flex-wrap gap-2">
+          {availableLinks.map(([platform, url]) => (
+            <a
+              key={platform}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-black text-white hover:bg-gray-900 transition-colors"
+            >
+              {platform.charAt(0).toUpperCase() + platform.slice(1)}
+            </a>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -247,6 +286,7 @@ const UserProfile: React.FC = () => {
               {userData.role.toLowerCase()}
             </span>
           </div>
+          {renderSocialLinks()}
         </div>
       </motion.div>
 

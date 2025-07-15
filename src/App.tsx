@@ -13,6 +13,7 @@ import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import InstructorVerifyOTPPage from "./pages/Auth/InstructorVerifyOTPPage";
 import SidebarLayout from "./pages/SidebarLayout";
 import UserProfile from "./pages/UserProfile";
+import UpdateProfilePage from "./pages/UpdateProfilePage";
 
 function MainLayout() {
   const location = useLocation();
@@ -65,7 +66,7 @@ function App() {
         <Route path="/dashboard/*" element={<SidebarLayout />}>
           {/* Common routes */}
           <Route path="my-profile" element={<UserProfile />} />
-          <Route path="edit-profile" element={<h1>Edit Profile</h1>} />
+          <Route path="edit-profile" element={<UpdateProfilePage />} />
           <Route path="notifications" element={<h1>Notifications</h1>} />
           
           {/* Student-specific routes */}

@@ -1,1 +1,1 @@
-export const BASE_URL = "https://jmlvvmzg-8080.inc1.devtunnels.ms";
+export const BASE_URL = import.meta.env.VITE_BACKEND_URL;

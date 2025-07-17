@@ -15,6 +15,7 @@ import SidebarLayout from "./pages/SidebarLayout";
 import UserProfile from "./pages/UserProfile";
 import UpdateProfilePage from "./pages/UpdateProfilePage";
 import PublicUserProfile from "./pages/PublicUserProfile";
+import CreateCoursePage from "./pages/CreateCoursePage";
 // import CreateCoursePage from "./pages/CreateCoursePage";
 
 function MainLayout() {
@@ -46,6 +47,7 @@ function MainLayout() {
         <Route path="/forgot-password/verify-otp" element={<ForgotPasswordVerifyOTPPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/instructor-verify-otp" element={<InstructorVerifyOTPPage />} />
+        
         {/* Redirect any unmatched paths in MainLayout to home */}
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
@@ -84,7 +86,7 @@ function App() {
           <Route path="delete-account" element={<h1>Delete Account</h1>} />
           
           {/* Instructor-specific routes */}
-          <Route path="create-courses" element={<h1>ffffffff</h1>} />
+          <Route path="create-courses" element={<CreateCoursePage />} />
           <Route path="courses" element={<h1>My Courses</h1>} />
           <Route path="edit-courses" element={<h1>Edit Courses</h1>} />
           <Route path="resources" element={<h1>Resources</h1>} />

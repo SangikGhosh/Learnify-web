@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import LogoutModal from '../components/LogoutModel';
 import Navbar from '../components/Navbar';
 import { BASE_URL } from '../utils/config';
 import { instructorMenuItems, instructorSectionTitles } from '../components/InstructorMenuItem';
 import { studentMenuItems } from '../components/StudentMenuItem';
+import { debounce } from 'lodash';
 
 interface MenuItem {
   name: string;
@@ -16,31 +17,41 @@ interface MenuItem {
   action?: () => void;
 }
 
+interface PublicUserData {
+  username: string;
+  email?: string;
+  role: string;
+  socialLinks?: {
+    [key: string]: string;
+  };
+}
+
 const SidebarLayout: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [sectionTitles, setSectionTitles] = useState<Record<string, string>>({});
   const [groupedItems, setGroupedItems] = useState<Record<string, MenuItem[]>>({});
   const [userName, setUserName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<PublicUserData[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // In a real app, you would fetch this from your API
         const storedUserData = localStorage.getItem('userData');
         if (storedUserData) {
           const parsedData = JSON.parse(storedUserData);
           setMenuBasedOnRole(parsedData.role);
-          setUserName(parsedData.name || 'User');
+          setUserName(parsedData.username || 'User');
           return;
         }
 
-        // Mock API call - replace with your actual API call
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        // This is just a mock - replace with your actual API endpoint
         const response = await fetch(`${BASE_URL}/api/common/user-details`, {
           method: 'GET',
           headers: {
@@ -53,7 +64,7 @@ const SidebarLayout: React.FC = () => {
           const data = await response.json();
           localStorage.setItem('userData', JSON.stringify(data));
           setMenuBasedOnRole(data.role);
-          setUserName(data.name || 'User');
+          setUserName(data.username || 'User');
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -68,14 +79,12 @@ const SidebarLayout: React.FC = () => {
       setMenuItems(instructorMenuItems);
       setSectionTitles(instructorSectionTitles);
     } else {
-      // Default to student menu
       setMenuItems(studentMenuItems);
-      setSectionTitles(sectionTitles);
+      setSectionTitles({});
     }
   };
 
   useEffect(() => {
-    // Group menu items by section
     const grouped: Record<string, MenuItem[]> = {};
     menuItems.forEach(item => {
       if (!grouped[item.section]) {
@@ -93,7 +102,60 @@ const SidebarLayout: React.FC = () => {
     window.location.href = "/home";
   };
 
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
 
+    setIsSearching(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`${BASE_URL}/api/common/user/${query}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSearchResults([data]);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const debouncedSearch = debounce(handleSearch, 300);
+
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      debouncedSearch(searchQuery);
+    } else {
+      setSearchResults([]);
+    }
+
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [searchQuery]);
+
+  const handleResultClick = (username: string) => {
+    setSearchQuery('');
+    setSearchResults([]);
+    navigate(`/user/${username}`);
+  };
 
   return (
     <>
@@ -117,9 +179,9 @@ const SidebarLayout: React.FC = () => {
               </div>
 
               {/* Search */}
-              <div className="px-4 mt-8">
+              <div className="px-4 mt-8 relative">
                 <label htmlFor="search" className="sr-only">
-                  Search
+                  Search users
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -129,10 +191,48 @@ const SidebarLayout: React.FC = () => {
                     type="search"
                     name="search"
                     id="search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="block w-full py-2 pl-10 border border-gray-300 rounded-lg sm:text-sm"
-                    placeholder="Search here"
+                    placeholder="Search users by username"
+                    autoComplete="off"
                   />
                 </div>
+
+                {/* Search results dropdown */}
+                {searchQuery && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                    {isSearching ? (
+                      <div className="p-3 text-center text-gray-500">Searching...</div>
+                    ) : searchResults.length > 0 ? (
+                      <ul>
+                        {searchResults.map((user) => (
+                          <li 
+                            key={user.username} 
+                            className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer"
+                            onClick={() => handleResultClick(user.username)}
+                          >
+                            <div className="flex items-center p-3">
+                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-black flex items-center justify-center text-sm font-medium">
+                                {user.username.charAt(0).toUpperCase()}
+                              </div>
+                              <div className="ml-3">
+                                <p className="text-sm font-medium text-gray-900">{user.username}</p>
+                                {user.email && (
+                                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                                )}
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="p-3 text-center text-gray-500">
+                        {searchQuery && !isSearching ? 'No users found' : ''}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -149,10 +249,11 @@ const SidebarLayout: React.FC = () => {
                         {item.name === 'Logout' ? (
                           <div
                             onClick={() => setShowLogoutModal(true)}
-                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group cursor-pointer ${location.pathname === item.href
-                              ? 'text-white bg-black'
-                              : 'text-red-600 hover:bg-red-100'
-                              }`}
+                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group cursor-pointer ${
+                              location.pathname === item.href
+                                ? 'text-white bg-black'
+                                : 'text-red-600 hover:bg-red-100'
+                            }`}
                           >
                             {item.icon}
                             <span className="ml-4">{item.name}</span>
@@ -160,10 +261,11 @@ const SidebarLayout: React.FC = () => {
                         ) : (
                           <Link
                             to={item.href}
-                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group ${location.pathname === item.href
-                              ? 'text-white bg-black'
-                              : 'text-gray-900 hover:bg-gray-100'
-                              }`}
+                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group ${
+                              location.pathname === item.href
+                                ? 'text-white bg-black'
+                                : 'text-gray-900 hover:bg-gray-100'
+                            }`}
                           >
                             {item.icon}
                             <span className="ml-4">{item.name}</span>
@@ -183,11 +285,9 @@ const SidebarLayout: React.FC = () => {
                 className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-900 transition-all duration-200 rounded-lg hover:bg-gray-100"
               >
                 <div className="flex items-center">
-                  <img
-                    className="flex-shrink-0 object-cover w-6 h-6 mr-3 rounded-full"
-                    src="https://landingfoliocom.imgix.net/store/collection/clarity-dashboard/images/vertical-menu/2/avatar-male.png"
-                    alt="User avatar"
-                  />
+                  <div className="flex-shrink-0 w-6 h-6 mr-3 rounded-full bg-black text-white flex items-center justify-center text-sm font-medium">
+                    {userName.charAt(0).toUpperCase()}
+                  </div>
                   {userName || 'User'}
                 </div>
                 <svg

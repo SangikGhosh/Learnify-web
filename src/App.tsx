@@ -14,6 +14,8 @@ import InstructorVerifyOTPPage from "./pages/Auth/InstructorVerifyOTPPage";
 import SidebarLayout from "./pages/SidebarLayout";
 import UserProfile from "./pages/UserProfile";
 import UpdateProfilePage from "./pages/UpdateProfilePage";
+import PublicUserProfile from "./pages/PublicUserProfile";
+// import CreateCoursePage from "./pages/CreateCoursePage";
 
 function MainLayout() {
   const location = useLocation();
@@ -82,7 +84,7 @@ function App() {
           <Route path="delete-account" element={<h1>Delete Account</h1>} />
           
           {/* Instructor-specific routes */}
-          <Route path="create-courses" element={<h1>Create Courses</h1>} />
+          <Route path="create-courses" element={<h1>ffffffff</h1>} />
           <Route path="courses" element={<h1>My Courses</h1>} />
           <Route path="edit-courses" element={<h1>Edit Courses</h1>} />
           <Route path="resources" element={<h1>Resources</h1>} />

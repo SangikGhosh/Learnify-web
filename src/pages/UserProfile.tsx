@@ -143,15 +143,17 @@ const UserProfile: React.FC = () => {
 
     return (
       <div className="mt-4 sm:mt-6">
-        <h3 className="text-sm font-medium text-gray-500 mb-2">Social Links</h3>
-        <div className="flex flex-wrap gap-2">
+        <h3 className="text-sm font-medium text-gray-500 text-center md:text-left mb-3">
+          Social Links
+        </h3>
+        <div className="flex flex-wrap justify-center md:justify-start gap-3">
           {availableLinks.map(([platform, url]) => (
             <a
               key={platform}
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-black text-white hover:bg-gray-900 transition-colors"
+              className={`px-4 py-1.5 rounded-full text-xs font-medium border border-gray-300 hover:bg-black hover:text-white hover:border-black transition-all duration-200 hover:scale-102 hover:shadow-sm`}
             >
               {platform.charAt(0).toUpperCase() + platform.slice(1)}
             </a>

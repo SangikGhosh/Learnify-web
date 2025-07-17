@@ -11,18 +11,25 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@iconify/react": "^6.0.0",
     "@tailwindcss/vite": "^4.1.11",
+    "@uploadthing/react": "^7.3.2",
+    "@uploadthing/shared": "^7.1.9",
     "axios": "^1.10.0",
-    "framer-motion": "^12.20.1",
+    "framer-motion": "^12.23.6",
     "heroicons": "^2.2.0",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.525.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-dropzone": "^14.3.8",
     "react-icons": "^5.5.0",
+    "react-infinite-logo-slider": "^1.1.4",
     "react-intersection-observer": "^9.16.0",
     "react-router-dom": "^7.6.3",
     "react-toastify": "^11.0.5",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "uploadthing": "^7.7.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

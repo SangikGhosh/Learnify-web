@@ -194,18 +194,37 @@ const UpdateProfilePage: React.FC = () => {
                 throw new Error(errorData.error || 'Failed to update profile');
             }
 
-            setSuccess(true);
+            // Update local storage immediately after successful update
+            const savedUserData = localStorage.getItem('userData');
+            if (savedUserData) {
+                const parsedData = JSON.parse(savedUserData);
 
-            // Update local storage if username changed
-            if (payload.username) {
-                const savedUserData = localStorage.getItem('userData');
-                if (savedUserData) {
-                    const parsedData = JSON.parse(savedUserData);
+                // Update username if it was changed
+                if (payload.username) {
                     parsedData.username = payload.username;
-                    localStorage.setItem('userData', JSON.stringify(parsedData));
                     localStorage.setItem('username', payload.username);
                 }
+
+                // Update social links if they were changed
+                if (payload.socialLinks) {
+                    // Merge existing links with new ones (preserve any existing links not being updated)
+                    parsedData.SocialLinks = {
+                        ...parsedData.SocialLinks,
+                        ...payload.socialLinks
+                    };
+
+                    // Remove any links that were set to empty string (if your API handles this)
+                    Object.keys(parsedData.SocialLinks).forEach(key => {
+                        if (parsedData.SocialLinks[key] === '') {
+                            delete parsedData.SocialLinks[key];
+                        }
+                    });
+                }
+
+                localStorage.setItem('userData', JSON.stringify(parsedData));
             }
+
+            setSuccess(true);
 
             // Redirect back to profile after 2 seconds
             setTimeout(() => {

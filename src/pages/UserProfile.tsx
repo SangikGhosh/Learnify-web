@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect, useCallback } from 'react';
 import { BASE_URL } from '../utils/config';
 import { motion } from 'framer-motion';
@@ -11,7 +12,7 @@ interface UserData {
   coursesCompleted?: number;
   enrolledCourses?: number;
   progress?: number;
-  url?: string,
+  url?: string;
   SocialLinks?: {
     instagram?: string;
     twitter?: string;
@@ -31,15 +32,13 @@ const UserProfile: React.FC = () => {
   const [userInitial, setUserInitial] = useState<string>('');
 
   const fetchUserData = useCallback(async () => {
-    // Check if user data exists in localStorage
     const savedUserData = localStorage.getItem('userData');
 
     if (savedUserData) {
       const parsedData = JSON.parse(savedUserData);
       setUserData(parsedData);
-      // Set user initial - prefer URL if available, otherwise use username initial
       if (parsedData.url) {
-        setUserInitial(parsedData.url); // Store URL directly
+        setUserInitial(parsedData.url);
       } else if (parsedData.username) {
         setUserInitial(parsedData.username.charAt(0).toUpperCase());
       }
@@ -70,23 +69,20 @@ const UserProfile: React.FC = () => {
         username: data.username,
         email: data.email || '',
         role: data.role,
-        url: data.url, // Store the profile picture URL
+        url: data.url,
         SocialLinks: data.SocialLinks || {}
       };
 
-      // Save to state
       setUserData(userDataToStore);
 
-      // Set user initial - prefer URL if available
       if (data.url) {
-        setUserInitial(data.url); // Store the URL directly in userInitial
+        setUserInitial(data.url);
       } else if (data.username) {
         const initial = data.username.charAt(0).toUpperCase();
         setUserInitial(initial);
         localStorage.setItem('username', data.username);
       }
 
-      // Save the essential data to localStorage
       localStorage.setItem('userData', JSON.stringify(userDataToStore));
     } catch (err) {
       console.error('Error fetching user data:', err);
@@ -100,7 +96,6 @@ const UserProfile: React.FC = () => {
     fetchUserData();
   }, [fetchUserData]);
 
-  // Animation variants
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -128,26 +123,39 @@ const UserProfile: React.FC = () => {
     if (!userData?.SocialLinks) return null;
 
     const socialLinks = userData.SocialLinks;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const availableLinks = Object.entries(socialLinks).filter(([_, value]) => value);
 
     if (availableLinks.length === 0) return null;
 
+    const socialIcons = {
+      instagram: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
+      twitter: 'https://pngimg.com/uploads/x_logo/x_logo_PNG2.png',
+      github: 'https://cdn-icons-png.flaticon.com/512/25/25231.png',
+      linkedin: 'https://img.freepik.com/premium-vector/square-linkedin-logo-isolated-white-background_469489-892.jpg',
+      website: 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png',
+      reddit: 'https://w7.pngwing.com/pngs/647/198/png-transparent-reddit-hd-logo.png'
+    };
+
     return (
       <div className="mt-4 sm:mt-6">
-        <h3 className="text-sm font-medium text-gray-500 text-center md:text-left mb-3">
+        <h3 className="text-sm font-medium text-gray-500 text-left mb-3">
           Social Links
         </h3>
-        <div className="flex flex-wrap justify-center md:justify-start gap-3">
+        <div className="flex flex-wrap justify-start gap-1 sm:gap-2">
           {availableLinks.map(([platform, url]) => (
             <a
               key={platform}
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`px-4 py-1.5 rounded-full text-xs font-medium border border-gray-300 hover:bg-black hover:text-white hover:border-black transition-all duration-200 hover:scale-102 hover:shadow-sm`}
+              className="flex items-center gap-2 px-4 py-2 bg-inherit hover:bg-gray-200 rounded-lg transition"
             >
-              {platform.charAt(0).toUpperCase() + platform.slice(1)}
+              <img
+                src={socialIcons[platform as keyof typeof socialIcons] || socialIcons.website}
+                alt={platform}
+                className="w-5 h-5 object-contain"
+              />
+              <span className="capitalize hidden sm:flex text-sm">{platform}</span>
             </a>
           ))}
         </div>
@@ -159,7 +167,6 @@ const UserProfile: React.FC = () => {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="animate-pulse space-y-8">
-          {/* Profile Header Skeleton */}
           <div className="flex flex-col items-center gap-6 p-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
             <div className="relative">
               <div className="w-24 h-24 rounded-full bg-gray-300"></div>
@@ -171,7 +178,6 @@ const UserProfile: React.FC = () => {
             </div>
           </div>
 
-          {/* Profile Details Skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-6 bg-white rounded-xl border border-gray-200 space-y-4">
               <div className="h-6 w-1/3 bg-gray-200 rounded"></div>
@@ -259,16 +265,16 @@ const UserProfile: React.FC = () => {
     >
       {/* Profile Header */}
       <motion.div
-        className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 p-4 sm:p-8 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl mb-6 sm:mb-8"
+        className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6 p-4 sm:p-8 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl mb-6 sm:mb-8"
         variants={fadeIn}
       >
         <div className="relative">
           <img
             src={userInitial}
             alt="Profile"
-            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-3 border-gray-200 object-cover shadow-md"
+            className="w-25 h-25 md:w-28 md:h-28 rounded-full border-3 border-gray-200 object-cover shadow-md"
           />
-          <div className="absolute bottom-1 sm:bottom-2 right-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500 border-2 border-white"></div>
+          <div className="absolute bottom-2 sm:bottom-3 right-0 w-5 h-5 sm:w-5 sm:h-5 rounded-full bg-green-500 border-3 border-white"></div>
         </div>
         <div className="text-center sm:text-left">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{userData.username}</h1>
@@ -277,7 +283,7 @@ const UserProfile: React.FC = () => {
           )}
           <div className="mt-2 sm:mt-3">
             <span className="inline-block bg-black px-3 sm:px-4 py-1 rounded-md text-xs sm:text-sm font-medium text-white border border-gray-200 shadow-sm">
-              {userData.role.toLowerCase()}
+              {userData.role}
             </span>
           </div>
           {renderSocialLinks()}
@@ -304,7 +310,7 @@ const UserProfile: React.FC = () => {
               {userData.email && (
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">Email Address</label>
-                  <div className="w-full p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm sm:text-base text-gray-900">
+                  <div className="w-full p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm sm:text-base text-gray-900 overflow-hidden">
                     {userData.email}
                   </div>
                 </div>
@@ -320,7 +326,7 @@ const UserProfile: React.FC = () => {
               className="mt-4 sm:mt-6 w-full py-2 sm:py-3 bg-black text-white rounded-lg cursor-pointer transition duration-300 text-sm sm:text-base font-medium"
               onClick={() => navigate('/dashboard/edit-profile')}
             >
-              Update Profile
+              Click to Update Profile
             </button>
           </motion.div>
 
@@ -386,7 +392,7 @@ const UserProfile: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
                   </div>
-                  <span className="text-sm sm:text-base font-medium text-gray-700">Notification Preferences</span>
+                  <span className="text-sm sm:text-base font-medium text-gray-700 text-left">Notification Preferences</span>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />

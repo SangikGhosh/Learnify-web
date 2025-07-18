@@ -15,6 +15,7 @@
     "@tailwindcss/vite": "^4.1.11",
     "@uploadthing/react": "^7.3.2",
     "@uploadthing/shared": "^7.1.9",
+    "axios": "^1.10.0",
     "framer-motion": "^12.23.6",
     "heroicons": "^2.2.0",
     "lodash": "^4.17.21",

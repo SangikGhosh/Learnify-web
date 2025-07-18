@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BASE_URL } from '../utils/config';
@@ -7,11 +8,19 @@ interface PublicUserData {
   username: string;
   email?: string;
   role: string;
+  joinDate?: string;
+  coursesCompleted?: number;
+  enrolledCourses?: number;
+  progress?: number;
+  imageUrl?: string;
   socialLinks?: {
-    [key: string]: string;
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+    github?: string;
+    website?: string;
+    [key: string]: string | undefined;
   };
-  createdAt?: string;
-  imageUrl?: string,
 }
 
 const PublicUserProfile: React.FC = () => {
@@ -21,13 +30,71 @@ const PublicUserProfile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Social media icons
-  const socialIcons = {
-    instagram: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
-    twitter: 'https://pngimg.com/uploads/x_logo/x_logo_PNG2.png',
-    github: 'https://cdn-icons-png.flaticon.com/512/25/25231.png',
-    linkedin: 'https://img.freepik.com/premium-vector/square-linkedin-logo-isolated-white-background_469489-892.jpg',
-    reddit: 'https://w7.pngwing.com/pngs/647/198/png-transparent-reddit-hd-logo.png'
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut" as const
+      }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        when: "beforeChildren"
+      }
+    }
+  };
+
+  const renderSocialLinks = () => {
+    if (!userData?.socialLinks) return null;
+
+    const socialLinks = userData.socialLinks;
+    const availableLinks = Object.entries(socialLinks).filter(([_, value]) => value);
+
+    if (availableLinks.length === 0) return null;
+
+    const socialIcons = {
+      instagram: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
+      twitter: 'https://pngimg.com/uploads/x_logo/x_logo_PNG2.png',
+      github: 'https://cdn-icons-png.flaticon.com/512/25/25231.png',
+      linkedin: 'https://img.freepik.com/premium-vector/square-linkedin-logo-isolated-white-background_469489-892.jpg',
+      website: 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png',
+      reddit: 'https://w7.pngwing.com/pngs/647/198/png-transparent-reddit-hd-logo.png'
+    };
+
+    return (
+      <div className="mt-4 sm:mt-6">
+        <h3 className="text-sm font-medium text-gray-500 text-left mb-3">
+          Social Links
+        </h3>
+        <div className="flex flex-wrap justify-start gap-1 sm:gap-2">
+          {availableLinks.map(([platform, url]) => (
+            <a
+              key={platform}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-inherit hover:bg-gray-200 rounded-lg transition"
+            >
+              <img
+                src={socialIcons[platform as keyof typeof socialIcons] || socialIcons.website}
+                alt={platform}
+                className="w-5 h-5 object-contain"
+              />
+              <span className="capitalize hidden sm:flex text-sm">{platform}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -46,7 +113,7 @@ const PublicUserProfile: React.FC = () => {
           throw new Error('User not found');
         }
 
-        const data: PublicUserData = await response.json();
+        const data = await response.json();
         setUserData(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch user data');
@@ -63,10 +130,32 @@ const PublicUserProfile: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="animate-pulse space-y-8">
           <div className="flex flex-col items-center gap-6 p-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
-            <div className="w-24 h-24 rounded-full bg-gray-300"></div>
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-gray-300"></div>
+              <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-green-500 border-2 border-white"></div>
+            </div>
             <div className="space-y-3 text-center">
               <div className="h-8 w-48 bg-gray-300 rounded mx-auto"></div>
               <div className="h-4 w-32 bg-gray-300 rounded mx-auto"></div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 bg-white rounded-xl border border-gray-200 space-y-4">
+              <div className="h-6 w-1/3 bg-gray-200 rounded"></div>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-4 w-1/4 bg-gray-200 rounded"></div>
+                  <div className="h-12 bg-gray-100 rounded-lg border border-gray-200"></div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-6 bg-white rounded-xl border border-gray-200 space-y-4">
+              <div className="h-6 w-1/3 bg-gray-200 rounded"></div>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-12 bg-gray-100 rounded-lg border border-gray-200"></div>
+              ))}
             </div>
           </div>
         </div>
@@ -76,98 +165,203 @@ const PublicUserProfile: React.FC = () => {
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex items-center">
-            <svg className="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <motion.div
+          className="text-center p-8 bg-white rounded-2xl border border-gray-200 shadow-sm max-w-md"
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+        >
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-            <span className="text-red-800 font-medium">{error}</span>
           </div>
-          <button 
+          <h3 className="text-xl font-bold text-gray-800 mt-4">Error loading profile</h3>
+          <p className="text-gray-600 mt-2">{error}</p>
+          <button
             onClick={() => navigate(-1)}
-            className="mt-4 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+            className="mt-6 px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-300"
           >
             Go Back
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   if (!userData) {
-    return null;
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <motion.div
+          className="text-center p-8 bg-white rounded-2xl border border-gray-200 shadow-sm max-w-md"
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+        >
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-800 mt-4">No User Data</h3>
+          <p className="text-gray-600 mt-2">We couldn't find any user data to display.</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-6 px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-300"
+          >
+            Go Back
+          </button>
+        </motion.div>
+      </div>
+    );
   }
 
   return (
     <motion.div
-      className="max-w-4xl mx-auto px-4 py-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      className="max-w-4xl sm:mx-12 md:mx-28 lg:mx-auto px-4 sm:px-6 py-4 sm:py-8 pt-20 md:pt-24"
+      initial="hidden"
+      animate="visible"
+      variants={staggerContainer}
     >
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-        {/* Profile Header */}
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 sm:p-8 text-center">
-          <div className="w-24 h-24 mx-auto rounded-full bg-black text-white flex items-center justify-center text-4xl font-bold mb-4">
-            {userData.imageUrl}
+      {/* Profile Header */}
+      <motion.div
+        className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6 p-4 sm:p-8 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl mb-6 sm:mb-8"
+        variants={fadeIn}
+      >
+        <div className="relative">
+          <img
+            src={userData.imageUrl}
+            alt="Profile"
+            className="w-25 h-25 md:w-28 md:h-28 rounded-full border-3 border-gray-200 object-cover shadow-md"
+          />
+          <div className="absolute bottom-2 sm:bottom-3 right-0 w-5 h-5 sm:w-5 sm:h-5 rounded-full bg-green-500 border-3 border-white"></div>
+        </div>
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{userData.username}</h1>
+          {userData.email && (
+            <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">{userData.email}</p>
+          )}
+          <div className="mt-2 sm:mt-3">
+            <span className="inline-block bg-black px-3 sm:px-4 py-1 rounded-md text-xs sm:text-sm font-medium text-white border border-gray-200 shadow-sm">
+              {userData.role}
+            </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
-            {userData.username}
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600 capitalize">
-            {userData.role}
-          </p>
-          {userData.createdAt && (
+          {userData.joinDate && (
             <p className="text-xs text-gray-500 mt-2">
-              Member since {new Date(userData.createdAt).toLocaleDateString()}
+              Member since {new Date(userData.joinDate).toLocaleDateString()}
             </p>
           )}
+          {renderSocialLinks()}
         </div>
+      </motion.div>
 
-        {/* Profile Details */}
-        <div className="p-6 sm:p-8">
-          {userData.email && (
-            <div className="mb-6">
-              <h2 className="text-sm font-medium text-gray-500 mb-1">Email</h2>
-              <p className="text-gray-900">{userData.email}</p>
-            </div>
-          )}
-
-          {/* Social Links */}
-          {userData.socialLinks && Object.keys(userData.socialLinks).length > 0 && (
-            <div>
-              <h2 className="text-sm font-medium text-gray-500 mb-3">Social Links</h2>
-              <div className="flex flex-wrap gap-4">
-                {Object.entries(userData.socialLinks).map(([platform, url]) => (
-                  <a
-                    key={platform}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
-                  >
-                    <img
-                      src={socialIcons[platform as keyof typeof socialIcons]}
-                      alt={platform}
-                      className="w-5 h-5 object-contain"
-                    />
-                    <span className="capitalize">{platform}</span>
-                  </a>
-                ))}
+      {/* Profile Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* Left Column */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Personal Info Card */}
+          <motion.div
+            className="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm"
+            variants={fadeIn}
+          >
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">User Information</h2>
+            <div className="space-y-3 sm:space-y-4">
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">Username</label>
+                <div className="w-full p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm sm:text-base text-gray-900">
+                  {userData.username}
+                </div>
+              </div>
+              {userData.email && (
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">Email Address</label>
+                  <div className="w-full p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm sm:text-base text-gray-900 overflow-hidden">
+                    {userData.email}
+                  </div>
+                </div>
+              )}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">Account Type</label>
+                <div className="w-full p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm sm:text-base text-gray-900 capitalize">
+                  {userData.role.toLowerCase()}
+                </div>
               </div>
             </div>
-          )}
+          </motion.div>
         </div>
-      </div>
 
-      <div className="mt-6 text-center">
-        <button
-          onClick={() => navigate(-1)}
-          className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-        >
-          Go Back
-        </button>
+        {/* Right Column */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Progress Card */}
+          {userData.progress !== undefined && (
+            <motion.div
+              className="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm"
+              variants={fadeIn}
+            >
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Learning Progress</h2>
+              <div className="space-y-3 sm:space-y-4">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs sm:text-sm font-medium text-gray-700">Course Completion</span>
+                    <span className="text-xs sm:text-sm font-medium text-gray-700">{userData.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5">
+                    <div
+                      className="bg-blue-600 h-2 sm:h-2.5 rounded-full"
+                      style={{ width: `${userData.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <p className="text-xs sm:text-sm text-blue-600 mb-1">Courses Completed</p>
+                    <p className="text-xl sm:text-2xl font-bold text-blue-800">{userData.coursesCompleted || 0}</p>
+                  </div>
+                  <div className="p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <p className="text-xs sm:text-sm text-purple-600 mb-1">Enrolled Courses</p>
+                    <p className="text-xl sm:text-2xl font-bold text-purple-800">{userData.enrolledCourses || 0}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Badges Card */}
+          <motion.div
+            className="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm"
+            variants={fadeIn}
+          >
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Achievements</h2>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              <div className="flex items-center bg-blue-50 px-2 py-1 sm:px-3 sm:py-1 rounded-full border border-blue-100">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span className="ml-1 text-xs sm:text-sm font-medium text-blue-800">New Learner</span>
+              </div>
+              <div className="flex items-center bg-purple-50 px-2 py-1 sm:px-3 sm:py-1 rounded-full border border-purple-100">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="ml-1 text-xs sm:text-sm font-medium text-purple-800">Course Completed</span>
+              </div>
+              <div className="flex items-center bg-green-50 px-2 py-1 sm:px-3 sm:py-1 rounded-full border border-green-100">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                </svg>
+                <span className="ml-1 text-xs sm:text-sm font-medium text-green-800">Dedicated Learner</span>
+              </div>
+              <div className="flex items-center bg-yellow-50 px-2 py-1 sm:px-3 sm:py-1 rounded-full border border-yellow-100">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span className="ml-1 text-xs sm:text-sm font-medium text-yellow-800">Advanced Learner</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   );

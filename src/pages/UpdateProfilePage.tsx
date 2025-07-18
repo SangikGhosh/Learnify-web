@@ -20,6 +20,7 @@ interface UserData {
     username: string;
     email?: string;
     role: string;
+    url: string;
     SocialLinks?: SocialLinks;
 }
 
@@ -98,6 +99,7 @@ const UpdateProfilePage: React.FC = () => {
                 localStorage.setItem('userData', JSON.stringify({
                     role: data.role,
                     email: data.email,
+                    url: data.url,
                     SocialLinks: data.SocialLinks,
                     username: data.username
                 }));

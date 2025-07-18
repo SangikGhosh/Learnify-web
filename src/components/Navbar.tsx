@@ -4,7 +4,6 @@ import { GraduationCap, School, ChevronDown, ChevronUp, X } from "lucide-react";
 import ExploreDropdown from "./ExploreDropdown";
 import Searchbar from "./SearchBar";
 import { useAuth } from "../hooks/useAuth";
-import { imageMap } from "./AvatarData";
 import { BASE_URL } from "../utils/config";
 import UserDropdown from "./UserDropdown";
 import LogoutModal from "./LogoutModel";
@@ -61,15 +60,39 @@ const Navbar: React.FC = () => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
+
+        // Store all user data including URL
+        const userData = {
+          username: data.username,
+          role: data.role,
+          url: data.url // Store the profile picture URL
+        };
+
+        localStorage.setItem('userData', JSON.stringify(userData));
+
         if (data.username) {
-          localStorage.setItem('username', data.username);
           setUsername(data.username);
+        }
+
+        // Set user initial - prefer profile picture if available
+        if (data.url) {
+          setUserInitial(data.url);
+        } else if (data.username) {
           setUserInitial(data.username.charAt(0).toUpperCase());
         }
       } catch (error) {
         console.error('Error fetching username:', error);
       }
     } else if (isLoggedIn && username) {
+      // Check for stored user data
+      const storedUserData = localStorage.getItem('userData');
+      if (storedUserData) {
+        const parsedData = JSON.parse(storedUserData);
+        if (parsedData.url) {
+          setUserInitial(parsedData.url);
+          return;
+        }
+      }
       setUserInitial(username.charAt(0).toUpperCase());
     }
   }, [isLoggedIn, username]);
@@ -81,6 +104,19 @@ const Navbar: React.FC = () => {
         if (storedUserData) {
           const parsedData = JSON.parse(storedUserData);
           setMenuBasedOnRole(parsedData.role);
+
+          // Set username if available
+          if (parsedData.username) {
+            setUsername(parsedData.username);
+          }
+
+          // Set user initial based on what's available
+          if (parsedData.url) {
+            setUserInitial(parsedData.url);
+          } else if (parsedData.username) {
+            setUserInitial(parsedData.username.charAt(0).toUpperCase());
+          }
+
           return;
         }
 
@@ -97,8 +133,22 @@ const Navbar: React.FC = () => {
 
         if (response.ok) {
           const data = await response.json();
-          localStorage.setItem('userData', JSON.stringify(data));
+          const userData = {
+            username: data.username,
+            role: data.role,
+            url: data.url // Store the URL in userData
+          };
+          localStorage.setItem('userData', JSON.stringify(userData));
+
           setMenuBasedOnRole(data.role);
+          if (data.username) {
+            setUsername(data.username);
+          }
+          if (data.url) {
+            setUserInitial(data.url);
+          } else if (data.username) {
+            setUserInitial(data.username.charAt(0).toUpperCase());
+          }
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -499,9 +549,7 @@ const Navbar: React.FC = () => {
                     >
                       <div className="relative w-18 h-18">
                         <img
-                          src={
-                            imageMap[userInitial as keyof typeof imageMap] || `https://i.pinimg.com/736x/65/86/33/65863323059a9c78a095f5bae47faa35.jpg`
-                          }
+                          src={userInitial} 
                           alt="Profile"
                           className="w-full h-full rounded-full overflow-hidden object-cover"
                         />

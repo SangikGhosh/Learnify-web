@@ -47,7 +47,7 @@ function MainLayout() {
         <Route path="/forgot-password/verify-otp" element={<ForgotPasswordVerifyOTPPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/instructor-verify-otp" element={<InstructorVerifyOTPPage />} />
-        
+        <Route path="/user/:username" element={<PublicUserProfile />} />
         {/* Redirect any unmatched paths in MainLayout to home */}
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
@@ -62,17 +62,16 @@ function App() {
       <Routes>
         {/* Redirect root path to /home */}
         <Route path="/" element={<Navigate to="/home" replace />} />
-        
+
         {/* Public routes with navbar/footer (or without for auth pages) */}
         <Route path="/*" element={<MainLayout />} />
-
         {/* Dashboard routes with sidebar layout (no navbar/footer) */}
         <Route path="/dashboard/*" element={<SidebarLayout />}>
           {/* Common routes */}
           <Route path="my-profile" element={<UserProfile />} />
           <Route path="edit-profile" element={<UpdateProfilePage />} />
           <Route path="notifications" element={<h1>Notifications</h1>} />
-          
+
           {/* Student-specific routes */}
           <Route path="my-learnings" element={<h1>My Learnings</h1>} />
           <Route path="my-cart" element={<h1>My Cart</h1>} />
@@ -84,7 +83,7 @@ function App() {
           <Route path="purchase-history" element={<h1>Purchase History</h1>} />
           <Route path="help-support" element={<h1>Help & Support</h1>} />
           <Route path="delete-account" element={<h1>Delete Account</h1>} />
-          
+
           {/* Instructor-specific routes */}
           <Route path="create-courses" element={<CreateCoursePage />} />
           <Route path="courses" element={<h1>My Courses</h1>} />
@@ -100,7 +99,7 @@ function App() {
           <Route path="messages" element={<h1>Messages</h1>} />
           <Route path="performance" element={<h1>Performance</h1>} />
           <Route path="support" element={<h1>Support</h1>} />
-          
+
           {/* Default dashboard route */}
           <Route index element={<UserProfile />} />
         </Route>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { imageMap } from '../components/AvatarData';
 import { BASE_URL } from '../utils/config';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +11,7 @@ interface UserData {
   coursesCompleted?: number;
   enrolledCourses?: number;
   progress?: number;
+  url?: string,
   SocialLinks?: {
     instagram?: string;
     twitter?: string;
@@ -37,7 +37,10 @@ const UserProfile: React.FC = () => {
     if (savedUserData) {
       const parsedData = JSON.parse(savedUserData);
       setUserData(parsedData);
-      if (parsedData.username) {
+      // Set user initial - prefer URL if available, otherwise use username initial
+      if (parsedData.url) {
+        setUserInitial(parsedData.url); // Store URL directly
+      } else if (parsedData.username) {
         setUserInitial(parsedData.username.charAt(0).toUpperCase());
       }
       setLoading(false);
@@ -67,25 +70,24 @@ const UserProfile: React.FC = () => {
         username: data.username,
         email: data.email || '',
         role: data.role,
+        url: data.url, // Store the profile picture URL
         SocialLinks: data.SocialLinks || {}
       };
+
       // Save to state
       setUserData(userDataToStore);
 
-      if (data.username) {
+      // Set user initial - prefer URL if available
+      if (data.url) {
+        setUserInitial(data.url); // Store the URL directly in userInitial
+      } else if (data.username) {
         const initial = data.username.charAt(0).toUpperCase();
         setUserInitial(initial);
         localStorage.setItem('username', data.username);
       }
 
       // Save the essential data to localStorage
-      const essentialData = {
-        username: data.username,
-        email: data.email || '',
-        role: data.role,
-        SocialLinks: data.SocialLinks || {}
-      };
-      localStorage.setItem('userData', JSON.stringify(essentialData));
+      localStorage.setItem('userData', JSON.stringify(userDataToStore));
     } catch (err) {
       console.error('Error fetching user data:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -97,16 +99,6 @@ const UserProfile: React.FC = () => {
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
-
-  const getAvatar = () => {
-    if (!userInitial) return 'https://via.placeholder.com/150';
-
-    const avatarKey = Object.keys(imageMap).find(key => key === userInitial);
-
-    return avatarKey
-      ? imageMap[avatarKey as keyof typeof imageMap]
-      : `https://ui-avatars.com/api/?name=${userInitial}&background=random&size=150`;
-  };
 
   // Animation variants
   const fadeIn = {
@@ -272,7 +264,7 @@ const UserProfile: React.FC = () => {
       >
         <div className="relative">
           <img
-            src={getAvatar()}
+            src={userInitial}
             alt="Profile"
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-3 border-gray-200 object-cover shadow-md"
           />

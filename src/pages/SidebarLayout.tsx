@@ -21,6 +21,7 @@ interface PublicUserData {
   username: string;
   email?: string;
   role: string;
+  url?:string;
   socialLinks?: {
     [key: string]: string;
   };
@@ -37,6 +38,7 @@ const SidebarLayout: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PublicUserData[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [userInitial, setUserInitial] = useState<string>('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -46,6 +48,7 @@ const SidebarLayout: React.FC = () => {
           const parsedData = JSON.parse(storedUserData);
           setMenuBasedOnRole(parsedData.role);
           setUserName(parsedData.username || 'User');
+          setUserInitial(parsedData.url || null)
           return;
         }
 
@@ -65,6 +68,7 @@ const SidebarLayout: React.FC = () => {
           localStorage.setItem('userData', JSON.stringify(data));
           setMenuBasedOnRole(data.role);
           setUserName(data.username || 'User');
+          setUserInitial(data.url || null)
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -78,7 +82,7 @@ const SidebarLayout: React.FC = () => {
     if (role === 'INSTRUCTOR') {
       setMenuItems(instructorMenuItems);
       setSectionTitles(instructorSectionTitles);
-    } else {
+    } else if (role === "STUDENT") {
       setMenuItems(studentMenuItems);
       setSectionTitles({});
     }
@@ -115,7 +119,7 @@ const SidebarLayout: React.FC = () => {
         throw new Error('Authentication required');
       }
 
-      const response = await fetch(`${BASE_URL}/api/common/user/${query}`, {
+      const response = await fetch(`${BASE_URL}/api/common/search-user/${encodeURIComponent(query)}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -125,7 +129,9 @@ const SidebarLayout: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setSearchResults([data]);
+        // Handle both array and single object response
+        const results = Array.isArray(data) ? data : [data];
+        setSearchResults(results);
       } else {
         setSearchResults([]);
       }
@@ -207,20 +213,25 @@ const SidebarLayout: React.FC = () => {
                     ) : searchResults.length > 0 ? (
                       <ul>
                         {searchResults.map((user) => (
-                          <li 
-                            key={user.username} 
+                          <li
+                            key={user.username}
                             className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer"
                             onClick={() => handleResultClick(user.username)}
                           >
                             <div className="flex items-center p-3">
-                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-black flex items-center justify-center text-sm font-medium">
-                                {user.username.charAt(0).toUpperCase()}
+                              <div className="flex-shrink-0 w-10 h-10 rounded-full text-white flex items-center justify-center text-sm font-medium">
+                                <img 
+                                src={user.url}
+                                alt='profile'
+                                className='rounded-full'
+                                />
                               </div>
                               <div className="ml-3">
                                 <p className="text-sm font-medium text-gray-900">{user.username}</p>
                                 {user.email && (
                                   <p className="text-xs text-gray-500 truncate">{user.email}</p>
                                 )}
+                                <p className="text-xs text-gray-500 capitalize">{user.role.toLowerCase()}</p>
                               </div>
                             </div>
                           </li>
@@ -240,20 +251,21 @@ const SidebarLayout: React.FC = () => {
             <div className="flex-1 px-3 overflow-y-auto">
               {Object.keys(groupedItems).map((section) => (
                 <div key={section} className="mt-6">
-                  <h3 className="px-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">
-                    {sectionTitles[section]}
-                  </h3>
+                  {sectionTitles[section] && (
+                    <h3 className="px-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                      {sectionTitles[section]}
+                    </h3>
+                  )}
                   <nav className="mt-2 space-y-1">
                     {groupedItems[section].map((item) => (
                       <div key={`${section}-${item.name}`}>
                         {item.name === 'Logout' ? (
                           <div
                             onClick={() => setShowLogoutModal(true)}
-                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group cursor-pointer ${
-                              location.pathname === item.href
-                                ? 'text-white bg-black'
-                                : 'text-red-600 hover:bg-red-100'
-                            }`}
+                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group cursor-pointer ${location.pathname === item.href
+                              ? 'text-white bg-black'
+                              : 'text-red-600 hover:bg-red-100'
+                              }`}
                           >
                             {item.icon}
                             <span className="ml-4">{item.name}</span>
@@ -261,11 +273,10 @@ const SidebarLayout: React.FC = () => {
                         ) : (
                           <Link
                             to={item.href}
-                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group ${
-                              location.pathname === item.href
-                                ? 'text-white bg-black'
-                                : 'text-gray-900 hover:bg-gray-100'
-                            }`}
+                            className={`flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group ${location.pathname === item.href
+                              ? 'text-white bg-black'
+                              : 'text-gray-900 hover:bg-gray-100'
+                              }`}
                           >
                             {item.icon}
                             <span className="ml-4">{item.name}</span>
@@ -282,11 +293,16 @@ const SidebarLayout: React.FC = () => {
             <div className="flex-shrink-0 px-3 pb-4 mt-auto">
               <button
                 type="button"
-                className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-900 transition-all duration-200 rounded-lg hover:bg-gray-100"
+                className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-900 transition-all duration-200 rounded-lg hover:bg-gray-100 cursor-pointer"
+                onClick={() => navigate("/dashboard/my-profile")}
               >
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 w-6 h-6 mr-3 rounded-full bg-black text-white flex items-center justify-center text-sm font-medium">
-                    {userName.charAt(0).toUpperCase()}
+                  <div>
+                    <img
+                      src={userInitial}
+                      alt="Profile"
+                       className="flex-shrink-0 w-8 h-8 mr-3 rounded-full text-white flex items-center justify-center text-sm font-medium"
+                    />
                   </div>
                   {userName || 'User'}
                 </div>

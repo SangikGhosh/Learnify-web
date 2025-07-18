@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { imageMap } from './AvatarData';
 import LogoutModal from './LogoutModel';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -128,7 +127,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ username, userInitial }) =>
         <div className="relative w-12 h-12">
           <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-400">
             <img
-              src={imageMap[userInitial as keyof typeof imageMap] || `https://i.pinimg.com/736x/65/86/33/65863323059a9c78a095f5bae47faa35.jpg`}
+              src={userInitial}
               alt="Profile"
               className="w-full h-full object-cover"
             />

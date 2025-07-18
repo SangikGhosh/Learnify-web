@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { MagnifyingGlassIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/outline';
 import LogoutModal from '../components/LogoutModel';
@@ -40,6 +40,8 @@ const SidebarLayout: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [userInitial, setUserInitial] = useState<string>('');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState<{top: number, name: string, left: number} | null>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -177,6 +179,23 @@ const SidebarLayout: React.FC = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement | HTMLAnchorElement>, name: string) => {
+    if (!isSidebarCollapsed) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const sidebarRect = sidebarRef.current?.getBoundingClientRect();
+    
+    setHoveredItem({
+      top: rect.top + window.scrollY,
+      name,
+      left: sidebarRect?.right || 0
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredItem(null);
+  };
+
   return (
     <>
       <div className='flex md:hidden'>
@@ -185,6 +204,7 @@ const SidebarLayout: React.FC = () => {
       <div className="flex flex-1 bg-gray-50 h-screen overflow-hidden">
         {/* Sidebar */}
         <div 
+          ref={sidebarRef}
           className={`hidden md:flex flex-col bg-white transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-72'} relative z-20 shadow-lg`}
         >
           <div className="flex flex-col h-full">
@@ -276,7 +296,7 @@ const SidebarLayout: React.FC = () => {
             </div>
 
             {/* Scrollable navigation items */}
-            <div className="flex-1 px-3 overflow-y-auto overflow-x-hidden">
+            <div className="flex-1 px-3 overflow-y-auto overflow-x-hidden relative">
               {Object.keys(groupedItems).map((section) => (
                 <div key={section} className="mt-6">
                   {!isSidebarCollapsed && sectionTitles[section] && (
@@ -286,7 +306,12 @@ const SidebarLayout: React.FC = () => {
                   )}
                   <nav className="mt-2 space-y-1">
                     {groupedItems[section].map((item) => (
-                      <div key={`${section}-${item.name}`} className="relative group">
+                      <div 
+                        key={`${section}-${item.name}`} 
+                        className="relative group"
+                        onMouseEnter={(e) => handleMouseEnter(e, item.name)}
+                        onMouseLeave={handleMouseLeave}
+                      >
                         {item.name === 'Logout' ? (
                           <div
                             onClick={() => setShowLogoutModal(true)}
@@ -297,12 +322,7 @@ const SidebarLayout: React.FC = () => {
                             }`}
                           >
                             <span className="flex-shrink-0">{item.icon}</span>
-                            {!isSidebarCollapsed && <span className="ml-4 z-50">{item.name}</span>}
-                            {isSidebarCollapsed && (
-                              <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-md shadow-lg z-50 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                {item.name}
-                              </div>
-                            )}
+                            {!isSidebarCollapsed && <span className="ml-4">{item.name}</span>}
                           </div>
                         ) : (
                           <Link
@@ -315,11 +335,6 @@ const SidebarLayout: React.FC = () => {
                           >
                             <span className="flex-shrink-0">{item.icon}</span>
                             {!isSidebarCollapsed && <span className="ml-4">{item.name}</span>}
-                            {isSidebarCollapsed && (
-                              <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-md shadow-lg z-50 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                {item.name}
-                              </div>
-                            )}
                           </Link>
                         )}
                       </div>
@@ -383,6 +398,20 @@ const SidebarLayout: React.FC = () => {
             </div>
           </main>
         </div>
+
+        {/* Tooltip for collapsed sidebar */}
+        {isSidebarCollapsed && hoveredItem && (
+          <div 
+            className="fixed ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-md shadow-lg whitespace-nowrap z-[9999]"
+            style={{
+              left: `${hoveredItem.left + 8}px`,
+              top: `${hoveredItem.top + 12}px`
+            }}
+          >
+            {hoveredItem.name}
+            <div className="absolute right-full top-1/2 transform -translate-y-1/2 w-2 h-2 bg-gray-900 rotate-45 -mr-1"></div>
+          </div>
+        )}
 
         {/* Logout Modal */}
         <LogoutModal

@@ -127,7 +127,7 @@ const PublicUserProfile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 pt-12">
         <div className="animate-pulse space-y-8">
           <div className="flex flex-col items-center gap-6 p-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
             <div className="relative">

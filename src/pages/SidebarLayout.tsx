@@ -205,7 +205,7 @@ const SidebarLayout: React.FC = () => {
         {/* Sidebar */}
         <div 
           ref={sidebarRef}
-          className={`hidden md:flex flex-col bg-white transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-72'} relative z-20 shadow-lg`}
+          className={`hidden md:flex flex-col bg-white transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-16' : 'w-72'} relative z-20 shadow-lg`}
         >
           <div className="flex flex-col h-full">
             {/* Fixed header with logo and toggle button */}
@@ -296,7 +296,7 @@ const SidebarLayout: React.FC = () => {
             </div>
 
             {/* Scrollable navigation items */}
-            <div className="flex-1 px-3 overflow-y-auto overflow-x-hidden relative">
+            <div className="flex-1 px-3 overflow-y-auto overflow-x-hidden relative  scrollbar-hide">
               {Object.keys(groupedItems).map((section) => (
                 <div key={section} className="mt-6">
                   {!isSidebarCollapsed && sectionTitles[section] && (
@@ -345,10 +345,10 @@ const SidebarLayout: React.FC = () => {
             </div>
 
             {/* Fixed user profile at bottom */}
-            <div className="flex-shrink-0 px-2.5 pb-2.5 mt-auto">
+            <div className="flex-shrink-0 px-2.5 pb-2.5 mt-auto border-t border-gray-200">
               <button
                 type="button"
-                className="flex items-center justify-between w-full px-2.5 py-2.5 text-sm font-medium text-gray-900 transition-all duration-200 rounded-lg hover:bg-gray-100 cursor-pointer"
+                className="flex items-center justify-between w-full px-2.5 py-2.5 text-sm font-medium text-gray-900 transition-all duration-200 rounded-lg cursor-pointer"
                 onClick={() => navigate("/dashboard/my-profile")}
               >
                 <div className="flex items-center">
@@ -405,7 +405,7 @@ const SidebarLayout: React.FC = () => {
             className="fixed ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-md shadow-lg whitespace-nowrap z-[9999]"
             style={{
               left: `${hoveredItem.left + 8}px`,
-              top: `${hoveredItem.top + 12}px`
+              top: `${hoveredItem.top + 1}px`
             }}
           >
             {hoveredItem.name}
